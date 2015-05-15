@@ -116,7 +116,7 @@ class Server:
             return bottle.static_file(filename, root=root_path)
 
         @bottle.route('/images/agency/:filename')
-        def send_image(filename=None):
+        def send_image_agency(filename=None):
             # FIXME: the param 'root' should be define in other place, now just for test.
             root_path = "%s/../images/agency" %(self.dir_path)
             return bottle.static_file(filename, root=root_path)
@@ -129,7 +129,7 @@ class Server:
             return "%s" %(datetime.now())
 
         @bottle.route('/api/get/schools/:number')
-        def get_schools(number=None):
+        def api_get_schools(number=None):
             '''
                 Get schools info by area code.
                 The area code can get more info by http://www.stats.gov.cn/tjsj/tjbz/xzqhdm/
@@ -194,7 +194,7 @@ class Server:
                 return "%s" %(json.dumps(response))
 
         @bottle.route('/api/get/province')
-        def get_city_info():
+        def api_get_city_info():
 
             response = {}
             response['result'] = 'error'
@@ -203,7 +203,7 @@ class Server:
             return "%s" %(json.dumps(response))
 
         @bottle.route('/api/get/:province/city')
-        def get_city_info(province=None):
+        def api_get_city_info(province=None):
 
             response = {}
             response['result'] = 'error'
@@ -215,7 +215,7 @@ class Server:
 
 
         @bottle.route('/api/get/:province/:city/county')
-        def get_county_info(province=None, city=None):
+        def api_get_county_info(province=None, city=None):
             response = {}
             response['result'] = 'error'
             response['county'] = []
@@ -252,15 +252,40 @@ class Server:
 
 
         @bottle.route('/api/verify/license', method="POST")
-        def verify_license():
+        def api_verify_license():
             response = {}
             response['result'] = 'error'
             response['logo_url'] = ''
 
             # just for test
             response['result'] = 'success'
-            response['logo_url'] = '/images/agency/teamnxxt.png'       
+            response['logo_url'] = '/images/agency/teamnxxt.png'
             return "%s" %(json.dumps(response))
+
+        @bottle.route('/api/create/guild', method="POST")
+        def api_create_guild():
+            response = {}
+            response['result'] = 'error'
+            response['logo_url'] = ''
+
+            # just for test
+            response['result'] = 'success'
+            response['logo_url'] = '/images/agency/teamnxxt.png'
+            return "%s" %(json.dumps(response))
+
+
+        @bottle.route('/api/search/guild', method="POST")
+        def api_search_guild():
+            response = {}
+            response['result'] = 'error'
+            response['logo_url'] = ''
+
+            # just for test
+            response['result'] = 'success'
+            response['logo_url'] = '/images/agency/teamnxxt.png'
+            return "%s" %(json.dumps(response))
+
+
 
     def run(self):
         bottle.run(host=self.ip, port=self.port, debug=True)
