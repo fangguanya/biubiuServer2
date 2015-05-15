@@ -242,12 +242,15 @@ class Server:
 
 
 
-        @bottle.route('/api/get/verify/license', method="POST")
+        @bottle.route('/api/verify/license', method="POST")
         def verify_license():
             response = {}
             response['result'] = 'error'
             response['logo_url'] = ''
 
+            # just for test
+            response['result'] = 'success'
+            response['logo_url'] = '/images/agency/teamnxxt.png'       
             return "%s" %(json.dumps(response))
 
     def run(self):
