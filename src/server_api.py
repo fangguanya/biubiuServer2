@@ -27,6 +27,8 @@ class Server:
         self.author  = __author__
         self.version = __version__
 
+        self.file_path = os.path.realpath(__file__)
+        self.dir_path  = os.path.dirname(self.file_path)
 
         # mark system start time
         self.system_initialized = datetime.now()
@@ -110,7 +112,14 @@ class Server:
         @bottle.route('/images/:filename')
         def send_image(filename=None):
             # FIXME: the param 'root' should be define in other place, now just for test.
-            return bottle.static_file(filename, root='../images')
+            root_path = "%s/../images" %(self.dir_path)
+            return bottle.static_file(filename, root=root_path)
+
+        @bottle.route('/images/agency/:filename')
+        def send_image(filename=None):
+            # FIXME: the param 'root' should be define in other place, now just for test.
+            root_path = "%s/../images/agency" %(self.dir_path)
+            return bottle.static_file(filename, root=root_path)
 
         #################
         #API
