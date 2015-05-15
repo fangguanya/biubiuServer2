@@ -107,8 +107,10 @@ class Server:
         def error404(error):
             return "Nothing here, sorry."
 
-
-
+        @bottle.route('/images/:filename')
+        def send_image(filename=None):
+            # FIXME: the param 'root' should be define in other place, now just for test.
+            return bottle.static_file(filename, root='../images')
 
         #################
         #API
@@ -126,16 +128,16 @@ class Server:
                     e.g: 430104, the 43 means hunan, 4301 means changsha, 430104 means yueluqu.
             '''
             
-            ret = {}
-            ret['result'] = 'error'
-            ret['schools'] = []
+            response = {}
+            response['result'] = 'error'
+            response['schools'] = []
 
             try:
 
                 self.logger.debug('[get_schools] The number:%s, type:%s.' %(number,type(number)))
                 if not isinstance(number,basestring):
-                    ret['message'] = "The number type error."
-                    return "%s" %(json.dumps(ret))
+                    response['message'] = "The number type error."
+                    return "%s" %(json.dumps(response))
 
                 # parse the area code
                 if len(number)==2:
@@ -153,8 +155,8 @@ class Server:
                     city_code = number[2:4]
                     county_code = number[4:6]
                 else:
-                    ret['message'] = "The area code's length should be 2,4 or 6."
-                    return "%s" %(json.dumps(ret))
+                    response['message'] = "The area code's length should be 2,4 or 6."
+                    return "%s" %(json.dumps(response))
 
                 self.logger.debug('[get_schools] province_code:%s, city_code:%s, county_code:%s.' %(province_code,city_code,county_code))    
 
@@ -174,40 +176,40 @@ class Server:
 
                                         ret['schools'].append(school_json)
 
-                ret['result'] = 'success'
-                return "%s" %(json.dumps(ret))
+                response['result'] = 'success'
+                return "%s" %(json.dumps(response))
 
             except Exception,ex: 
-                ret['result'] = 'error'
-                ret['message'] = "error:%s" %(ex)
-                return "%s" %(json.dumps(ret))
+                response['result'] = 'error'
+                response['message'] = "error:%s" %(ex)
+                return "%s" %(json.dumps(response))
 
         @bottle.route('/api/get/province')
         def get_city_info():
 
-            ret = {}
-            ret['result'] = 'error'
-            ret['schools'] = []
+            response = {}
+            response['result'] = 'error'
+            response['schools'] = []
 
-            return "%s" %(json.dumps(ret))
+            return "%s" %(json.dumps(response))
 
         @bottle.route('/api/get/:province/city')
         def get_city_info(province=None):
 
-            ret = {}
-            ret['result'] = 'error'
-            ret['schools'] = []
+            response = {}
+            response['result'] = 'error'
+            response['schools'] = []
 
             print "province:%s, type:%s" %(province,type(province))
 
-            return "%s" %(json.dumps(ret))
+            return "%s" %(json.dumps(response))
 
 
         @bottle.route('/api/get/:province/:city/county')
         def get_county_info(province=None, city=None):
-            ret = {}
-            ret['result'] = 'error'
-            ret['county'] = []
+            response = {}
+            response['result'] = 'error'
+            response['county'] = []
 
             print "province:%s, type:%s, city:%s, type:%s" %(province,type(province), city, type(city))
 
@@ -225,7 +227,7 @@ class Server:
            
             if city_json == None:
                 self.logger.debug('not found the city which area code is %s.' %(city_id))
-                return "%s" %(json.dumps(ret))
+                return "%s" %(json.dumps(response))
 
 
             for county_one in city_json['data']:
@@ -234,12 +236,19 @@ class Server:
                 county_json['id'] = county_one['id'][-6:]
                 ret['county'].append(county_json)
 
-            ret['result'] = 'success'
+            response['result'] = 'success'
 
-            return "%s" %(json.dumps(ret))
+            return "%s" %(json.dumps(response))
 
 
 
+        @bottle.route('/api/get/verify/license', method="POST")
+        def verify_license():
+            response = {}
+            response['result'] = 'error'
+            response['logo_url'] = ''
+
+            return "%s" %(json.dumps(response))
 
     def run(self):
         bottle.run(host=self.ip, port=self.port, debug=True)
