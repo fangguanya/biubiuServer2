@@ -319,15 +319,57 @@ class Server:
         def api_search_guild():
             response = {}
             response['result'] = 'error'
-            response['logo_url'] = ''
+            response['guilds'] = []
+            response['number'] = 0
 
-            # just for test
-            response['result'] = 'success'
-            response['logo_url'] = '/images/agency/teamnxxt.png'
-            return "%s" %(json.dumps(response))
+            try:
+                self.logger.debug('handle a request:/api/searchsearch/guild, ')
+
+                # get the data
+                post_data = bottle.request.body.getvalue()
+                self.logger.debug('handle the request data: %s' %(post_data))
+                '''
+                    The data format should be:
+                    {
+                        "player" : "PLAYER_ID",
+                        "mode": "",         # support 'all', 'city', 'nearby', 'id', 'name'
+
+                        "city_name" : "",       # for mode 'city'
+                        "longitude" : 12.334    # for mode 'nearby'
+                        "latitude"  : 23.345    # for mode 'nearby'
+                        "guild_id"  : 23        # for mode 'id'
+                        "guild_name": "name"    # for mode 'name'
+                    }
+                '''
+
+                post_data_json = json.loads(post_data)
+
+                # check the params
+                if post_data_json.has_key('mode'):
+                    if post_data_json['mode'] not in ['all', 'city', 'nearby', 'id', 'name']:
+                        response['result'] = 'error'
+                        response['message'] = 'mode:%s not support.' %(post_data_json['mode'])
+                        return "%s" %(json.dumps(response)) 
+                else:
+                    response['result'] = 'error'
+                    response['message'] = 'need must key:mode.'
+                    return "%s" %(json.dumps(response))        
+
+                if post_data_json['mode'] == 'all':
+                    ret,msg,guilds = self.database.db_search_guild(20)
+
+                response['guilds'] = guilds
+                # just for test
+                response['result'] = 'success'
+                response['logo_url'] = '/images/agency/teamnxxt.png'
+                return "%s" %(json.dumps(response))
 
 
-
+            except Exception,ex:
+                response = {}
+                response['result'] = 'error'
+                response['message'] = '%s' %(str(ex))
+                return "%s" %(json.dumps(response)) 
 
 
     def run(self):

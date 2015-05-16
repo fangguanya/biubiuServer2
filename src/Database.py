@@ -108,4 +108,49 @@ class Database:
                 conn.close();
 
             return "error","not do",None
+
+    def db_search_guild(self, number):
+        '''
+            Search the guild, and return the guild list.
+        '''
+        try:
+            result = []
+            conn = None;
+            ret, db = self.__connect_to_db();
+            print "__connect_to_db %s" %(ret)
+            ret,conn = self.__create_connection(db);
+            print "__create_connection %s" %(ret)
+
+            # insert project
+            sql = "select guild2.id,guild2.name,guild2.head,level,guild2.limit,guild2.number from guild2;" 
+            #Factory.logger.debug("[sql]%s" %(sql));
+            print "sql: %s." %(sql)
+            conn.execute(sql);
+
+            dataset = conn.fetchall();
+
+            for row in dataset:
+                result_one = {}
+                result_one['guild_id'] = row[0]
+                result_one['guild_name'] = row[1]
+
+                result_one['level'] = row[3]
+                result_one['people_limits'] = row[4]
+                result_one['people_number'] = row[5]
+              
+                result.append(result_one)
+
+            if conn is not None:
+                conn.close(); 
+
+            
+            return "success","ok",result;
+
+        except Exception,ex:
+            if conn is not None:
+                conn.close();
+
+            return "error","not do",None
     
+
+

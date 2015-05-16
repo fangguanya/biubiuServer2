@@ -9,6 +9,9 @@ CREATE TABLE `guild2` (
     `createTime` datetime NOT NULL DEFAULT '1970-01-01 08:00:00' ,
     `createrID` int NOT NULL DEFAULT 0 COMMENT 'the creater id of the guild',
     `exp` int NOT NULL DEFAULT 0 COMMENT 'the exp of the guild',
+    `gold` int NOT NULL DEFAULT 0 COMMENT 'the gold of the guild',
+    `gem` int NOT NULL DEFAULT 0 COMMENT 'the gem of the guild',
+    `prop` int NOT NULL DEFAULT 0 COMMENT 'the prop of the guild',
     `province` int NOT NULL DEFAULT 0 COMMENT 'the province of the guild',
     `city` int NOT NULL DEFAULT 0 COMMENT 'the city of the guild',
     `county` int NOT NULL DEFAULT 0 COMMENT 'the county of the guild',
@@ -26,5 +29,6 @@ CREATE TABLE `guildMember2` (
     `playerID` int NOT NULL DEFAULT 0 ,
     `playerOpenID` int NOT NULL DEFAULT 0 ,
     `exp` int NOT NULL DEFAULT 0 ,
+    `status` varchar(32) NOT NULL DEFAULT '' COMMENT 'the status of the guild member',
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
