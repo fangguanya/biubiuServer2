@@ -5,6 +5,7 @@ import os
 import logging
 import json
 
+from Database import Database
 
 from datetime import datetime
 
@@ -29,6 +30,9 @@ class Server:
 
         self.file_path = os.path.realpath(__file__)
         self.dir_path  = os.path.dirname(self.file_path)
+
+        # the database
+        self.database = Database()
 
         # mark system start time
         self.system_initialized = datetime.now()
@@ -216,6 +220,7 @@ class Server:
 
         @bottle.route('/api/get/:province/:city/county')
         def api_get_county_info(province=None, city=None):
+
             response = {}
             response['result'] = 'error'
             response['county'] = []
@@ -262,16 +267,52 @@ class Server:
             response['logo_url'] = '/images/agency/teamnxxt.png'
             return "%s" %(json.dumps(response))
 
+
+
         @bottle.route('/api/create/guild', method="POST")
         def api_create_guild():
-            response = {}
-            response['result'] = 'error'
-            response['logo_url'] = ''
+            try:
+                
+                response = {}
+                response['result'] = 'error'
+                response['logo_url'] = ''
 
-            # just for test
-            response['result'] = 'success'
-            response['logo_url'] = '/images/agency/teamnxxt.png'
-            return "%s" %(json.dumps(response))
+                self.logger.debug('handle a request:/api/create/guild, ')
+
+                # get the data
+                post_data = bottle.request.body.getvalue()
+                self.logger.debug('handle the request data: %s' %(post_data))
+                '''
+                    The data format should be:
+                    {
+                        "player" : "PLAYER_ID",
+                        "license": "LICENSE_CODE",
+                        "name" : "NAME",
+                        "logo" : "Logo_ID"
+                    }
+                '''
+                post_data_json = json.loads(post_data)
+
+                # check the params
+                #if post_data_json.has_key('player'):
+
+
+                guild_id = -1
+                # create the guild
+                ret, msg, guild_id = self.database.db_create_guild(post_data_json)
+
+
+                # just for test
+                response['result'] = 'success'
+                response['id'] = guild_id
+                return "%s" %(json.dumps(response))
+
+            except Exception,ex:
+                response = {}
+                response['result'] = 'error'
+                response['message'] = '%s' %(str(ex))
+                return "%s" %(json.dumps(response)) 
+
 
 
         @bottle.route('/api/search/guild', method="POST")
@@ -284,6 +325,8 @@ class Server:
             response['result'] = 'success'
             response['logo_url'] = '/images/agency/teamnxxt.png'
             return "%s" %(json.dumps(response))
+
+
 
 
 
