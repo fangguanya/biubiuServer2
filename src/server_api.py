@@ -187,7 +187,7 @@ class Server:
                                         school_json['id'] = "%s" %(county_one['id'][-6:])
                                         school_json['name'] = school_one
 
-                                        ret['schools'].append(school_json)
+                                        response['schools'].append(school_json)
 
                 response['result'] = 'success'
                 return "%s" %(json.dumps(response))
