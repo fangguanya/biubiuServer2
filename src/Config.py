@@ -6,8 +6,8 @@ class Config:
     '''
     # mysql configuration.
     mysqlHost = "localhost"
-    mysqlUser = "root"
-    mysqlPassword = "123456"
+    mysqlUser = "nxxt"
+    mysqlPassword = "nxxtServer"
     mysqlDatabase = "nxxt"
 
     #server port
