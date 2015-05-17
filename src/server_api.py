@@ -488,7 +488,16 @@ class Server:
                     return "%s" %(json.dumps(response)) 
 
                 # update the guild info
-                
+                update_guild_params = {}
+                update_guild_params['guild_id'] = guild_info[0]['guild_id']
+                #update_guild_params['createrID'] = player_info[0]['id']
+                #update_guild_params['createrOpenID'] = post_data_json['player']
+                update_guild_params['number'] = guild_info[0]['people_number'] + 1
+                ret,msg = self.database.db_update_guild_info(update_guild_params)
+                if ret != 'success':
+                    response['result'] = 'error'
+                    response['message'] = 'update the number to guild error:%s.' %(msg)
+                    return "%s" %(json.dumps(response)) 
 
                 # update the player info
 

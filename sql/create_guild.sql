@@ -5,6 +5,7 @@ CREATE TABLE `guild2` (
     `id` int NOT NULL AUTO_INCREMENT COMMENT 'the id of the guild',
     `name` varchar(64) NOT NULL DEFAULT '' COMMENT 'the name of the guild',
     `head` varchar(128) NOT NULL DEFAULT '' COMMENT 'the head path of the guild',
+    `headID` int NOT NULL DEFAULT 0 COMMENT 'the head path of the guild',
     `level` int NOT NULL DEFAULT 0 COMMENT 'the level of the guild',
     `createTime` datetime NOT NULL DEFAULT '1970-01-01 08:00:00' ,
     `createrID` int NOT NULL DEFAULT 0 COMMENT 'the creater id of the guild',

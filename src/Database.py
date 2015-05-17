@@ -64,6 +64,7 @@ class Database:
         '''
             Create the guild, and return the guild id.
         '''
+        conn = None 
         try:
             # default params
             createrID = 0
@@ -77,7 +78,6 @@ class Database:
             name = params['name'].encode('utf-8')
             head = params['logo']
 
-            conn = None;
             ret, db = self.__connect_to_db();
             #print "__connect_to_db %s" %(ret)
             ret,conn = self.__create_connection(db);
@@ -208,8 +208,72 @@ class Database:
             if conn is not None:
                 conn.close();
 
-            return "error","not do",None
-        
+            return "error",str(ex),None
+     
+    def db_update_guild_info(self, params):
+        '''
+            Update guild info by params
+        '''  
+        conn = None 
+        try:
+            sql = 'UPDATE guild2 SET '
+            update_cmd = ''
+            conn = None
+
+            #if params.has_key('name'):
+                #update_cmd = "%s" %(params['name'].encode('utf-8'))
+
+            if  params.has_key('head'):
+                update_cmd = "%s head='%s'," %(update_cmd, params['head'])
+
+            if  params.has_key('headID'):
+                update_cmd = "%s headID=%s," %(update_cmd, params['headID'])
+
+            if  params.has_key('province'):
+                update_cmd = "%s province=%s," %(update_cmd, params['province'])
+
+            if  params.has_key('city'):
+                update_cmd = "%s city=%s," %(update_cmd, params['city'])
+
+            if  params.has_key('county'):
+                update_cmd = "%s county=%s," %(update_cmd, params['county'])
+
+            if  params.has_key('longitude'):
+                update_cmd = "%s longitude=%s," %(update_cmd, params['longitude'])
+
+            if  params.has_key('latitude'):
+                update_cmd = "%s latitude=%s," %(update_cmd, params['latitude'])                     
+
+            if  params.has_key('number'):
+                update_cmd = "%s number=%s," %(update_cmd, params['number'])
+
+
+            if  len(update_cmd) > 0:
+                sql = "%s %s where id=%s;" %(sql, update_cmd[:-1], params['guild_id'])
+            else:
+                return "error","no param can be set"
+
+
+            print sql
+
+            
+            ret, db = self.__connect_to_db();
+            ret,conn = self.__create_connection(db);
+            ret = conn.execute(sql);
+            
+            db.commit();
+
+            if conn is not None:
+                conn.close(); 
+
+            return "success","ok"
+
+
+        except Exception,ex:
+            if conn is not None:
+                conn.close();
+
+            return "error",str(ex)    
 
     def db_get_player_by_openid(self, openid):
         '''
@@ -289,5 +353,5 @@ class Database:
             if conn is not None:
                 conn.close();
 
-            return "error","not do",None
+            return "error",str(ex),None
 
