@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 import os
 import json
 import MySQLdb
@@ -10,10 +13,10 @@ class Database:
 
     def __connect_to_db(self):
         try:
-            print "mysqlHost:%s, mysqlUser:%s, mysqlPassword:%s, mysqlDatabase:%s" %(Config.mysqlHost, 
-                Config.mysqlUser, Config.mysqlPassword, Config.mysqlDatabase)
+            #print "mysqlHost:%s, mysqlUser:%s, mysqlPassword:%s, mysqlDatabase:%s" %(Config.mysqlHost, 
+            #    Config.mysqlUser, Config.mysqlPassword, Config.mysqlDatabase)
             db = MySQLdb.connect(host=Config.mysqlHost,user=Config.mysqlUser, 
-                passwd=Config.mysqlPassword, db=Config.mysqlDatabase )
+                passwd=Config.mysqlPassword, db=Config.mysqlDatabase, charset="utf8")
 
         except Exception,ex:
             summary = "connect to db '%s' failed. host=%s." %(Config.mysqlDatabase, Config.mysqlHost)
@@ -70,20 +73,20 @@ class Database:
             # check the params
 
 
-            createrID = params['player']
-            name = params['name']
+            createrOpenID = params['player']
+            name = params['name'].encode('utf-8')
             head = params['logo']
 
             conn = None;
             ret, db = self.__connect_to_db();
-            print "__connect_to_db %s" %(ret)
+            #print "__connect_to_db %s" %(ret)
             ret,conn = self.__create_connection(db);
-            print "__create_connection %s" %(ret)
+            #print "__create_connection %s" %(ret)
 
             # insert project
-            sql = "insert into guild2(createrID, name, head, createTime, guild2.limit) values ('%s','%s','%s','%s','%s');" \
-                %self.__escape_tuple(createrID,name,head,datetime.now(),"25");
-            #Factory.logger.debug("[sql]%s" %(sql));
+            sql = "insert into guild2(createrOpenID, name, head, createTime, guild2.limit) values ('%s','%s','%s','%s','%s');" \
+                %self.__escape_tuple(createrOpenID,name,head,datetime.now(),"25");
+
             print "sql: %s." %(sql)
             conn.execute(sql);
             
@@ -117,11 +120,11 @@ class Database:
             result = []
             conn = None;
             ret, db = self.__connect_to_db();
-            print "__connect_to_db %s" %(ret)
-            ret,conn = self.__create_connection(db);
-            print "__create_connection %s" %(ret)
 
-            # insert project
+            ret,conn = self.__create_connection(db);
+
+
+            
             sql = "select guild2.id,guild2.name,guild2.head,level,guild2.limit,guild2.number from guild2;" 
             #Factory.logger.debug("[sql]%s" %(sql));
             print "sql: %s." %(sql)
@@ -151,6 +154,140 @@ class Database:
                 conn.close();
 
             return "error","not do",None
-    
 
+
+    def db_get_guild_by_guildID(self, guildID):
+        '''
+            Get the guild, and return the guild info.
+        '''
+        try:
+            result = []
+            conn = None;
+            ret, db = self.__connect_to_db();
+            
+            ret,conn = self.__create_connection(db);
+            
+            sql = "select id,name,head,level,createTime,createrID,createrOpenID,exp,gold,gem,prop,province,city,county,longitude,latitude,guild2.limit,guild2.number from guild2 where guild2.id=%s;" \
+                %(guildID)
+
+            print "sql: %s." %(sql)
+            conn.execute(sql);
+
+            dataset = conn.fetchall();
+
+            for row in dataset:
+                result_one = {}
+                result_one['guild_id'] = row[0]
+                result_one['guild_name'] = row[1]
+                result_one['head'] = row[2]
+                result_one['level'] = row[3]
+                result_one['createTime'] = str(row[4])
+                result_one['createrID'] = row[5]
+                result_one['createrOpenID'] = row[6]
+                result_one['exp'] = row[7]
+                result_one['gold'] = row[8]
+                result_one['gem'] = row[9]
+                result_one['prop'] = row[10]
+                result_one['province'] = row[11]
+                result_one['city'] = row[12]
+                result_one['county'] = row[13]
+                result_one['longitude'] = row[14]
+                result_one['latitude'] = row[15]
+                result_one['people_limits'] = row[16]
+                result_one['people_number'] = row[17]
+              
+                result.append(result_one)
+
+            if conn is not None:
+                conn.close(); 
+
+            
+            return "success","ok",result;
+
+        except Exception,ex:
+            if conn is not None:
+                conn.close();
+
+            return "error","not do",None
+        
+
+    def db_get_player_by_openid(self, openid):
+        '''
+            get the player info by openid.
+        '''
+        try:
+            result = []
+            conn = None;
+            ret, db = self.__connect_to_db();
+            ret,conn = self.__create_connection(db);
+
+            # insert project
+            sql = "select id, account, guildID from player where player.account='%s';"  %(openid)
+            #Factory.logger.debug("[sql]%s" %(sql));
+            print "sql: %s." %(sql)
+            conn.execute(sql);
+
+            dataset = conn.fetchall();
+
+            for row in dataset:
+                result_one = {}
+                result_one['id'] = row[0]
+                result_one['account'] = row[1]
+                result_one['guildID'] = row[2]
+
+                result.append(result_one)
+
+            if conn is not None:
+                conn.close(); 
+            
+            return "success","ok",result;
+
+        except Exception,ex:
+            if conn is not None:
+                conn.close();
+
+            return "error",str(ex),result
+
+
+    def db_create_guildMember(self, params):
+        '''
+            Create the guild member, and return the guild member id.
+        '''
+        try:
+            # check the params
+            guildID = params['guild_id']
+            playerID = params['player_id']
+            playerOpenID = params['player']
+
+            conn = None;
+            ret, db = self.__connect_to_db();
+            ret,conn = self.__create_connection(db);
+
+            sql = "insert into guildMember2(guildID, playerID, playerOpenID, status, createTime) values ('%s','%s','%s','%s','%s');" \
+                %self.__escape_tuple(guildID,playerID,playerOpenID, "active",datetime.now());
+
+            print "sql: %s." %(sql)
+            conn.execute(sql);
+
+            # get the project id.
+            conn.execute("select @@identity;");
+            source_id_ret = conn.fetchone();
+            if source_id_ret is None or len(source_id_ret) < 1:
+                #raise TVieException(Consts.error_db_create_source_failed, "create transcode task failed! name=%s items=%s" %(name_str,items_str));
+                msg = "create guild failed!"
+                print msg
+                #Factory.logger.error("%s" %(msg));
+                return "error",msg, None
+        
+            db.commit();
+            
+            guildMemver_id = source_id_ret[0];
+
+            return "success","ok",guildMemver_id;
+
+        except Exception,ex:
+            if conn is not None:
+                conn.close();
+
+            return "error","not do",None
 

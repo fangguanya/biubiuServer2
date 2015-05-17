@@ -1,0 +1,7 @@
+
+
+
+###### 2015.5.7 ######
+1.在player表中增加guildID字段，用来标识用户的学团信息。
+alter table `player` add column `guildId` int NOT NULL DEFAULT 0;
+

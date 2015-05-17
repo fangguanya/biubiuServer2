@@ -285,7 +285,7 @@ class Server:
                 '''
                     The data format should be:
                     {
-                        "player" : "PLAYER_ID",
+                        "player" : "PLAYER_OPEN_ID",
                         "license": "LICENSE_CODE",
                         "name" : "NAME",
                         "logo" : "Logo_ID"
@@ -294,12 +294,41 @@ class Server:
                 post_data_json = json.loads(post_data)
 
                 # check the params
-                #if post_data_json.has_key('player'):
+                if post_data_json.has_key('player'):
+                    # check the player
+                    # 1. get the player info
+                    ret,msg,info = self.database.db_get_player_by_openid(post_data_json['player'])
+                    if ret != 'success':
+                        response['result'] = 'error'
+                        response['message'] = 'get player error:%s.' %(msg)
+                        return "%s" %(json.dumps(response)) 
 
+                    if len(info) < 1:
+                        response['result'] = 'error'
+                        response['message'] = 'there is no player for id:%s.' %(post_data_json['player'])
+                        return "%s" %(json.dumps(response)) 
+
+                    self.logger.debug('Get player info: %s.' %(json.dumps(info)))
+
+                    # 2. check player has if or not join guild.
+                    if info['guildID'] > 0:
+                        response['result'] = 'error'
+                        response['message'] = 'player:%s is in other guild:%s.' %(post_data_json['player'],info['guildID'])
+                        return "%s" %(json.dumps(response)) 
+
+                    # 3. check the player can or not to create guild.
+                    
+                else:
+                    response['result'] = 'error'
+                    response['message'] = 'need param player.'
+                    return "%s" %(json.dumps(response)) 
 
                 guild_id = -1
                 # create the guild
                 ret, msg, guild_id = self.database.db_create_guild(post_data_json)
+
+
+                # add the player to guild, and add it to guildMember2
 
 
                 # just for test
@@ -357,6 +386,12 @@ class Server:
 
                 if post_data_json['mode'] == 'all':
                     ret,msg,guilds = self.database.db_search_guild(20)
+                #elif 
+
+                else:
+                    response['result'] = 'error'
+                    response['message'] = 'mode:%s not support.' %(post_data_json['mode'])
+                    return "%s" %(json.dumps(response))  
 
                 response['guilds'] = guilds
                 # just for test
@@ -370,6 +405,105 @@ class Server:
                 response['result'] = 'error'
                 response['message'] = '%s' %(str(ex))
                 return "%s" %(json.dumps(response)) 
+
+
+        @bottle.route('/api/add/guildmember', method="POST")
+        def api_add_guildmember():
+            response = {}
+            response['result'] = 'error'
+            response['member_id'] = -1
+            try:
+                self.logger.debug('handle a request:/api/add/guildmember, ')   
+                # get the data
+                post_data = bottle.request.body.getvalue()
+                self.logger.debug('handle the request data: %s' %(post_data))
+
+                '''
+                    post data format:
+                    {
+                        "player" : "PLAYER_ID",  
+                        "guild_id" : 92    
+                    }
+                '''
+                post_data_json = json.loads(post_data)
+
+                # check must key
+                if not post_data_json.has_key('player'):
+                    response['result'] = 'error'
+                    response['message'] = 'need param: player.'
+                    return "%s" %(json.dumps(response)) 
+
+                if not post_data_json.has_key('guild_id'):
+                    response['result'] = 'error'
+                    response['message'] = 'need param: guild_id.'
+                    return "%s" %(json.dumps(response)) 
+
+                # get the player info
+                ret,msg,player_info = self.database.db_get_player_by_openid(post_data_json['player'])
+                if ret != 'success':
+                    response['result'] = 'error'
+                    response['message'] = 'get player error:%s.' %(msg)
+                    return "%s" %(json.dumps(response)) 
+
+                if len(player_info) < 1:
+                    response['result'] = 'error'
+                    response['message'] = 'there is no player for id:%s.' %(post_data_json['player'])
+                    return "%s" %(json.dumps(response)) 
+
+                self.logger.debug('Get player info: %s.' %(json.dumps(player_info)))
+
+                # check player has if or not join guild.
+                if player_info[0]['guildID'] > 0:
+                    response['result'] = 'error'
+                    response['message'] = 'player:%s is in other guild:%s.' %(post_data_json['player'],player_info[0]['guildID'])
+                    return "%s" %(json.dumps(response)) 
+
+
+                # check the guild and if can be add new one
+                ret,msg,guild_info = self.database.db_get_guild_by_guildID(post_data_json['guild_id'])
+                if ret != 'success':
+                    response['result'] = 'error'
+                    response['message'] = 'get guild info error:%s.' %(msg)
+                    return "%s" %(json.dumps(response)) 
+
+                if len(guild_info) < 1:
+                    response['result'] = 'error'
+                    response['message'] = 'there is no guild for id:%s.' %(post_data_json['guild_id'])
+                    return "%s" %(json.dumps(response)) 
+
+                self.logger.debug('Get guild info: %s.' %(json.dumps(guild_info)))
+
+                # check the guild can join new one
+                if guild_info[0]['people_number'] >= guild_info[0]['people_limits']:
+                    response['result'] = 'error'
+                    response['message'] = 'The guild has full.'
+                    return "%s" %(json.dumps(response)) 
+
+                # add the player to guild
+                post_data_json['player_id'] = player_info[0]['id']
+                ret,msg,member_id = self.database.db_create_guildMember(post_data_json)
+                if ret != 'success':
+                    response['result'] = 'error'
+                    response['message'] = 'Add player:%s to guild error:%s.' %(post_data_json['player'],post_data_json['guild_id'])
+                    return "%s" %(json.dumps(response)) 
+
+                # update the guild info
+                
+
+                # update the player info
+
+
+                response['result'] = 'success'
+                response['member_id'] = member_id
+                return "%s" %(json.dumps(response))
+
+            except Exception,ex:
+                response = {}
+                response['result'] = 'error'
+                response['message'] = '%s' %(str(ex))
+                return "%s" %(json.dumps(response)) 
+
+
 
 
     def run(self):
