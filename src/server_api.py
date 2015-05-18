@@ -520,6 +520,44 @@ class Server:
                 response['message'] = '%s' %(str(ex))
                 return "%s" %(json.dumps(response)) 
 
+        @bottle.route('/api/get/guild/:guild_id')
+        def api_get_guild_info(guild_id=None):
+            response = {}
+            response['result'] = 'error'
+
+            try:
+
+                if guild_id == None:
+                    response['result'] = 'error'
+                    response['message'] = "guild id not difined."
+                    return "%s" %(json.dumps(response))
+
+
+                # get the guild info by id
+                # check the guild and if can be add new one
+                ret,msg,guild_info = self.database.db_get_guild_by_guildID(guild_id)
+                if ret != 'success':
+                    response['result'] = 'error'
+                    response['message'] = 'get guild info error:%s.' %(msg)
+                    return "%s" %(json.dumps(response)) 
+
+                if len(guild_info) < 1:
+                    response['result'] = 'error'
+                    response['message'] = 'there is no guild for id:%s.' %(guild_id)
+                    return "%s" %(json.dumps(response)) 
+
+                self.logger.debug('Get guild info: %s.' %(json.dumps(guild_info)))
+
+                response['result'] = "success"
+                response['guild_info'] = guild_info
+                return "%s" %(json.dumps(response)) 
+
+            except Exception,ex:
+                response = {}
+                response['result'] = 'error'
+                response['message'] = '%s' %(str(ex))
+                return "%s" %(json.dumps(response)) 
+
 
 
 
