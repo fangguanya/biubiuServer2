@@ -313,6 +313,51 @@ class Database:
             return "error",str(ex),result
 
 
+    def db_update_player_info(self, params):
+        '''
+            Update player info by params
+        '''  
+        conn = None 
+        try:
+            sql = 'UPDATE player SET '
+            update_cmd = ''
+            conn = None
+
+            #if params.has_key('name'):
+                #update_cmd = "%s" %(params['name'].encode('utf-8'))
+
+            if  params.has_key('guild_id'):
+                update_cmd = "%s guildId=%s," %(update_cmd, params['guild_id'])
+
+
+            if  len(update_cmd) > 0:
+                sql = "%s %s where account='%s';" %(sql, update_cmd[:-1], params['player_openid'])
+            else:
+                return "error","no param can be set"
+
+
+            print sql
+
+            
+            ret, db = self.__connect_to_db();
+            ret,conn = self.__create_connection(db);
+            ret = conn.execute(sql);
+            
+            db.commit();
+
+            if conn is not None:
+                conn.close(); 
+
+            return "success","ok"
+
+
+        except Exception,ex:
+            if conn is not None:
+                conn.close();
+
+            return "error",str(ex)    
+
+
     def db_create_guildMember(self, params):
         '''
             Create the guild member, and return the guild member id.

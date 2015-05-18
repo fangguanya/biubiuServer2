@@ -78,7 +78,7 @@
 
 
 3. 加入学团（先不限制，学团加满为止）
-[POST] http://ip/api/add/guildmamber
+[POST] http://ip/api/add/guildmember
 {
     "player" : "PLAYER_ID",          #必选
     "guild_id" : 92                       #学团ID

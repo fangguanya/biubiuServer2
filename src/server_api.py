@@ -248,7 +248,7 @@ class Server:
                 county_json = {}
                 county_json['name'] = county_one['name']
                 county_json['id'] = county_one['id'][-6:]
-                ret['county'].append(county_json)
+                response['county'].append(county_json)
 
             response['result'] = 'success'
 
@@ -490,9 +490,8 @@ class Server:
                 # update the guild info
                 update_guild_params = {}
                 update_guild_params['guild_id'] = guild_info[0]['guild_id']
-                #update_guild_params['createrID'] = player_info[0]['id']
-                #update_guild_params['createrOpenID'] = post_data_json['player']
                 update_guild_params['number'] = guild_info[0]['people_number'] + 1
+
                 ret,msg = self.database.db_update_guild_info(update_guild_params)
                 if ret != 'success':
                     response['result'] = 'error'
@@ -500,6 +499,15 @@ class Server:
                     return "%s" %(json.dumps(response)) 
 
                 # update the player info
+                update_player_params = {}
+                update_player_params['player_openid'] = post_data_json['player']
+                update_player_params['guild_id'] = guild_info[0]['guild_id']
+
+                ret,msg = self.database.db_update_player_info(update_player_params)
+                if ret != 'success':
+                    response['result'] = 'error'
+                    response['message'] = 'update the player info error:%s.' %(msg)
+                    return "%s" %(json.dumps(response))           
 
 
                 response['result'] = 'success'
