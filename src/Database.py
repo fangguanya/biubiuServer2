@@ -73,10 +73,14 @@ class Database:
 
             # check the params
 
+            if params.has_key('player'):
+                createrOpenID = params['player']
 
-            createrOpenID = params['player']
-            name = params['name'].encode('utf-8')
-            head = params['logo']
+            if params.has_key('name'):
+                name = params['name'].encode('utf-8')
+
+            if params.has_key('logo'):
+                head = params['logo']
 
             ret, db = self.__connect_to_db();
             #print "__connect_to_db %s" %(ret)
@@ -104,6 +108,9 @@ class Database:
             
             guild_id = source_id_ret[0];
             
+            if conn is not None:
+                conn.close(); 
+
             return "success","ok",guild_id;
 
         except Exception,ex:
@@ -362,13 +369,14 @@ class Database:
         '''
             Create the guild member, and return the guild member id.
         '''
+        conn = None
         try:
             # check the params
             guildID = params['guild_id']
             playerID = params['player_id']
             playerOpenID = params['player']
 
-            conn = None;
+            
             ret, db = self.__connect_to_db();
             ret,conn = self.__create_connection(db);
 

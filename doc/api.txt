@@ -44,9 +44,9 @@
 {
     "player" : "PLAYER_ID",          #可选，若设置，则返回的学团列表中若有该用户所在学团，将被标识出来
     "mode" : "all",                  #必选，选择范围"all","city", "nearby", "id", "name"
-    "range_min" : 1                  #可选，期望获取学团信息的数量范围
-    "range_max" : 20                 #可选，期望获取学团信息的数量范围
-    "sort_type" : ""                #可选，默认"id", 支持类型"id"(按学团id号), "level"(按学团等级),"exp"(按学团经验)
+    "range_min" : 1,                  #可选，期望获取学团信息的数量范围
+    "range_max" : 20,                 #可选，期望获取学团信息的数量范围
+    "sort_type" : "exp",                #可选，默认"exp", 支持类型"id"(按学团id号), "level"(按学团等级),"exp"(按学团经验)
     #其它可选参数
     "city_name": xx,                 #城市ID， "mode"为"city"时的必要参数
        

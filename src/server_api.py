@@ -297,23 +297,23 @@ class Server:
                 if post_data_json.has_key('player'):
                     # check the player
                     # 1. get the player info
-                    ret,msg,info = self.database.db_get_player_by_openid(post_data_json['player'])
+                    ret,msg,player_info = self.database.db_get_player_by_openid(post_data_json['player'])
                     if ret != 'success':
                         response['result'] = 'error'
                         response['message'] = 'get player error:%s.' %(msg)
                         return "%s" %(json.dumps(response)) 
 
-                    if len(info) < 1:
+                    if len(player_info) < 1:
                         response['result'] = 'error'
                         response['message'] = 'there is no player for id:%s.' %(post_data_json['player'])
                         return "%s" %(json.dumps(response)) 
 
-                    self.logger.debug('Get player info: %s.' %(json.dumps(info)))
+                    self.logger.debug('Get player info: %s.' %(json.dumps(player_info)))
 
                     # 2. check player has if or not join guild.
-                    if info['guildID'] > 0:
+                    if player_info[0]['guildID'] > 0:
                         response['result'] = 'error'
-                        response['message'] = 'player:%s is in other guild:%s.' %(post_data_json['player'],info['guildID'])
+                        response['message'] = 'player:%s is in other guild:%s.' %(post_data_json['player'],player_info[0]['guildID'])
                         return "%s" %(json.dumps(response)) 
 
                     # 3. check the player can or not to create guild.
@@ -326,12 +326,54 @@ class Server:
                 guild_id = -1
                 # create the guild
                 ret, msg, guild_id = self.database.db_create_guild(post_data_json)
+                if  ret != 'success':
+                    response['result'] = 'error'
+                    response['message'] = 'create guild error:%s.' %(msg)
+                    return "%s" %(json.dumps(response)) 
+                else:
+                    self.logger.debug('guild create success, id: %s' %(guild_id))
 
 
-                # add the player to guild, and add it to guildMember2
 
+                # add the player to guild
+                create_member_params = {}
+                create_member_params['player'] = post_data_json['player']
+                create_member_params['player_id'] = player_info[0]['id']
+                create_member_params['guild_id'] = guild_id
+                ret,msg,member_id = self.database.db_create_guildMember(create_member_params)
+                if ret != 'success':
+                    response['result'] = 'error'
+                    response['message'] = 'Add player:%s to guild error:%s.' %(create_member_params['player'],create_member_params['guild_id'])
+                    return "%s" %(json.dumps(response)) 
+                else:
+                    self.logger.debug('Add the player member:%s ok.' %(member_id))
 
-                # just for test
+                # update the guild info
+                update_guild_params = {}
+                update_guild_params['guild_id'] = guild_id
+                update_guild_params['number'] =  1
+
+                ret,msg = self.database.db_update_guild_info(update_guild_params)
+                if ret != 'success':
+                    response['result'] = 'error'
+                    response['message'] = 'update the number to guild error:%s.' %(msg)
+                    return "%s" %(json.dumps(response)) 
+                else:
+                    self.logger.debug('update the guild info success.')
+
+                # update the player info
+                update_player_params = {}
+                update_player_params['player_openid'] = post_data_json['player']
+                update_player_params['guild_id'] = guild_id
+
+                ret,msg = self.database.db_update_player_info(update_player_params)
+                if ret != 'success':
+                    response['result'] = 'error'
+                    response['message'] = 'update the player info error:%s.' %(msg)
+                    return "%s" %(json.dumps(response))   
+                else:
+                    self.logger.debug('update the player info success.')
+
                 response['result'] = 'success'
                 response['id'] = guild_id
                 return "%s" %(json.dumps(response))
@@ -362,7 +404,10 @@ class Server:
                     {
                         "player" : "PLAYER_ID",
                         "mode": "",         # support 'all', 'city', 'nearby', 'id', 'name'
-
+                        "range_min" : 1, 
+                        "range_max" : 20,
+                        "sort_type" : "exp", 
+                        
                         "city_name" : "",       # for mode 'city'
                         "longitude" : 12.334    # for mode 'nearby'
                         "latitude"  : 23.345    # for mode 'nearby'
@@ -396,7 +441,7 @@ class Server:
                 response['guilds'] = guilds
                 # just for test
                 response['result'] = 'success'
-                response['logo_url'] = '/images/agency/teamnxxt.png'
+                #response['logo_url'] = '/images/agency/teamnxxt.png'
                 return "%s" %(json.dumps(response))
 
 
