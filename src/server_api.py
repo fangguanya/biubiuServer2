@@ -6,10 +6,11 @@ import logging
 import json
 
 from Database import Database
-
 from datetime import datetime
 
 import bottle
+
+from Consts import Consts
 
 #from bottle import route, run, template, error, static_file, default_app
 
@@ -458,7 +459,7 @@ class Server:
             response['result'] = 'error'
             response['member_id'] = -1
             try:
-                self.logger.debug('handle a request:/api/add/guildmember, ')   
+                self.logger.debug('handle a request:/api/add/guildmember')   
                 # get the data
                 post_data = bottle.request.body.getvalue()
                 self.logger.debug('handle the request data: %s' %(post_data))
@@ -597,6 +598,120 @@ class Server:
                 response['guild_info'] = guild_info
                 return "%s" %(json.dumps(response)) 
 
+            except Exception,ex:
+                response = {}
+                response['result'] = 'error'
+                response['message'] = '%s' %(str(ex))
+                return "%s" %(json.dumps(response)) 
+
+
+        @bottle.route('/api/quit/guild', method="POST")
+        def api_add_guildmember():
+            response = {}
+            response['result'] = 'error'
+
+            try:
+                self.logger.debug('handle a request: /api/quit/guild ')   
+                # get the data
+                post_data = bottle.request.body.getvalue()
+                self.logger.debug('handle the request data: %s' %(post_data))
+
+                '''
+                    post data format:
+                    {
+                        "player" : "PLAYER_ID"
+                    }
+                '''
+                post_data_json = json.loads(post_data)
+
+
+                # check must key
+                if not post_data_json.has_key('player'):
+                    response['result'] = 'error'
+                    response['message'] = 'need param: player.'
+                    return "%s" %(json.dumps(response)) 
+
+
+                # get the player info
+                ret,msg,player_info = self.database.db_get_player_by_openid(post_data_json['player'])
+                if ret != 'success':
+                    response['result'] = 'error'
+                    response['message'] = 'get player error:%s.' %(msg)
+                    return "%s" %(json.dumps(response)) 
+
+                if len(player_info) < 1:
+                    response['result'] = 'error'
+                    response['message'] = 'there is no player for id:%s.' %(post_data_json['player'])
+                    return "%s" %(json.dumps(response)) 
+
+                self.logger.debug('Get player info: %s.' %(json.dumps(player_info)))
+
+                # check player has if or not join guild.
+                if player_info[0]['guildID'] <= 0:
+                    response['result'] = 'success'
+                    response['message'] = 'player:%s not in any guild, so no need to quit guild.' %(post_data_json['player'])
+                    return "%s" %(json.dumps(response)) 
+
+
+                post_data_json['guild_id'] = player_info[0]['guildID']
+                # check the guild 
+                ret,msg,guild_info = self.database.db_get_guild_by_guildID(post_data_json['guild_id'])
+                if ret != 'success':
+                    response['result'] = 'error'
+                    response['message'] = 'get guild info error:%s.' %(msg)
+                    return "%s" %(json.dumps(response)) 
+
+                if len(guild_info) < 1:
+                    response['result'] = 'error'
+                    response['message'] = 'there is no guild for id:%s.' %(post_data_json['guild_id'])
+                    return "%s" %(json.dumps(response)) 
+
+                self.logger.debug('Get guild info: %s.' %(json.dumps(guild_info)))
+
+
+                # if the player is the guild creater, return error
+                if  post_data_json['player'] ==  guild_info[0]['createrOpenID']:
+                    response['result'] = 'error'
+                    response['message'] = 'The player is guild guild creater, can not quit.'
+                    return "%s" %(json.dumps(response)) 
+
+                # the player quit the guild
+                quit_guild_params = {}
+                quit_guild_params['guild_id'] = post_data_json['guild_id']
+                quit_guild_params['player_openid'] = post_data_json['player']
+                quit_guild_params['status'] = Consts.guildMember_status_leave
+                ret, msg = self.database.db_update_guildMember_info(quit_guild_params)
+                if ret != 'success':
+                    response['result'] = 'error'
+                    response['message'] = 'update the guildMember info error:%s.' %(msg)
+                    return "%s" %(json.dumps(response))  
+
+                # update the guild info
+                update_guild_params = {}
+                update_guild_params['guild_id'] = guild_info[0]['guild_id']
+                update_guild_params['number'] = guild_info[0]['people_number'] - 1
+
+                ret,msg = self.database.db_update_guild_info(update_guild_params)
+                if ret != 'success':
+                    response['result'] = 'error'
+                    response['message'] = 'update the number to guild error:%s.' %(msg)
+                    return "%s" %(json.dumps(response)) 
+
+
+                # update the player info
+                update_player_params = {}
+                update_player_params['player_openid'] = post_data_json['player']
+                update_player_params['guild_id'] = 0
+
+                ret,msg = self.database.db_update_player_info(update_player_params)
+                if ret != 'success':
+                    response['result'] = 'error'
+                    response['message'] = 'update the player info error:%s.' %(msg)
+                    return "%s" %(json.dumps(response))    
+
+
+                response['result'] = "success"
+                return "%s" %(json.dumps(response)) 
             except Exception,ex:
                 response = {}
                 response['result'] = 'error'
