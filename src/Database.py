@@ -133,7 +133,7 @@ class Database:
 
 
             
-            sql = "select guild2.id,guild2.name,guild2.head,level,guild2.limit,guild2.number from guild2 where status!='delete';" 
+            sql = "select guild2.id,guild2.name,guild2.head,level,guild2.limit,guild2.number,createrOpenID from guild2 where status!='delete';" 
             #Factory.logger.debug("[sql]%s" %(sql));
             print "sql: %s." %(sql)
             conn.execute(sql);
@@ -148,7 +148,9 @@ class Database:
                 result_one['level'] = row[3]
                 result_one['people_limits'] = row[4]
                 result_one['people_number'] = row[5]
-              
+                result_one['createrOpenID'] = row[6]
+
+                result_one['if_in_guild'] = 0
                 result.append(result_one)
 
             if conn is not None:

@@ -392,8 +392,11 @@ class Server:
             response = {}
             response['result'] = 'error'
             response['guilds'] = []
-            response['number'] = 0
+            #response['number'] = 0
 
+
+            player_openid = ''
+            guilds = []
             try:
                 self.logger.debug('handle a request:/api/searchsearch/guild, ')
 
@@ -438,6 +441,31 @@ class Server:
                     response['result'] = 'error'
                     response['message'] = 'mode:%s not support.' %(post_data_json['mode'])
                     return "%s" %(json.dumps(response))  
+
+
+                # if has player, check the player if in one guild, if true set the 'if_in_guild' to 'yes'
+                if post_data_json.has_key('player'):
+                    # get player info 
+                    ret,msg,player_info = self.database.db_get_player_by_openid(post_data_json['player'])
+                    if ret != 'success':
+                        response['result'] = 'error'
+                        response['message'] = 'get player error:%s.' %(msg)
+                        return "%s" %(json.dumps(response)) 
+
+                    if len(player_info) >= 1:
+                        self.logger.debug('Get player info: %s.' %(json.dumps(player_info)))
+
+                        if player_info[0]['guildID'] > 0:
+
+                            for guild_one in guilds:
+                                if player_info[0]['guildID'] == guild_one['guild_id']:
+                                    guild_one['if_in_guild'] = 1
+
+                                if post_data_json['player'] == guild_one['createrOpenID']:
+                                    guild_one['if_in_guild'] = 2
+
+
+
 
                 response['guilds'] = guilds
                 # just for test
@@ -566,12 +594,73 @@ class Server:
                 response['message'] = '%s' %(str(ex))
                 return "%s" %(json.dumps(response)) 
 
-        @bottle.route('/api/get/guild/:guild_id')
-        def api_get_guild_info(guild_id=None):
+        @bottle.route('/api/get/guild' , method="POST")
+        def api_get_guild_info():
             response = {}
             response['result'] = 'error'
 
+            guild_id = None
             try:
+                self.logger.debug('handle a request: /api/get/guild ')   
+                # get the data
+                post_data = bottle.request.body.getvalue()
+                self.logger.debug('handle the request data: %s' %(post_data))
+
+                '''
+                    post data format:
+                    {
+                        "mode" : "guild",
+                        "guild_id" : 22,
+                        "player" : "PLAYER_ID"
+                    }
+                '''
+                post_data_json = json.loads(post_data)
+
+                # check params
+                if not post_data_json.has_key('mode'):
+                    response['result'] = 'error'
+                    response['message'] = 'need param: mode.'
+                    return "%s" %(json.dumps(response)) 
+
+                if post_data_json['mode'] == 'guild':
+                    if not post_data_json.has_key('guild_id'):
+                        response['result'] = 'error'
+                        response['message'] = 'need param: guild_id.'
+                        return "%s" %(json.dumps(response)) 
+
+                elif post_data_json['mode'] == 'player':
+                    if not post_data_json.has_key('player'):
+                        response['result'] = 'error'
+                        response['message'] = 'need param: player.'
+                        return "%s" %(json.dumps(response))  
+                else:
+                    response['result'] = 'error'
+                    response['message'] = 'mode:%s not support.' %(post_data_json['mode'])
+                    return "%s" %(json.dumps(response)) 
+
+
+                # different mode only neet guild_id to get the detil info.
+                if  post_data_json['mode'] == 'player':
+                    # get the player info
+                    ret,msg,player_info = self.database.db_get_player_by_openid(post_data_json['player'])
+                    if ret != 'success':
+                        response['result'] = 'error'
+                        response['message'] = 'get player error:%s.' %(msg)
+                        return "%s" %(json.dumps(response)) 
+
+                    if len(player_info) < 1:
+                        response['result'] = 'error'
+                        response['message'] = 'there is no player for id:%s.' %(post_data_json['player'])
+                        return "%s" %(json.dumps(response)) 
+
+                    self.logger.debug('Get player info: %s.' %(json.dumps(player_info)))
+                    guild_id = player_info[0]['guildID']
+
+                
+                elif post_data_json['mode'] == 'guild':
+                    guild_id = post_data_json['guild_id']
+
+
 
                 if guild_id == None:
                     response['result'] = 'error'
