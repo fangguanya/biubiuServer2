@@ -90,3 +90,80 @@
 }
 
 
+4. 退出学团
+[POST] http://ip/api/quit/guild
+{
+    "player": "xxxxx"    #player的openid
+}
+返回值：
+{
+    "result" : "success"
+}
+
+
+5. 学团副团长设置（暂时不用）
+限制： 学团有副团长人数限制
+
+
+
+6. 获取学团信息（返回学团详细信息）
+[POST] http://ip/api/get/guild
+{
+    "mode" : "guild",       #必选， 根据什么方式获取学团信息，目前支持"guild"（根据学团ID）,"player"（根据用户openid）
+    "guild_id" : 21,           #当"mode"为"guild"时为必选， 学团ID
+    "player" : "xxxx"        #当"mode"为"player"时为必选，用户openid
+}
+
+返回值：
+{
+    "result": "success",
+    "guild_info": [
+    {
+        # 详细信息
+        "head": "xxx",                       #学团头像URL
+        "headID" : 23,                       #学团头像ID
+        "level" : 10,                        #学团等级
+        "createTime":"xxxx"                  #学团创建时间
+        "createrID":12,                      #学团创建者ID
+        "createrOpenID":"xxx",               #学团创建者OpenID
+        "limit":100,                         #学团成员限制
+        "number":89,                         #学团现有成员
+        "province" : 8,                      #省行政区域码
+        "city": 23,                          #市行政区域码
+        "county" : 11,                       #县行政区域码
+        "longitude" : 23.456,                #经度（浮点数）
+        "latitude" : 33.456,                 #纬度（浮点数）
+    
+        #经济道具类信息
+        "exp" : 100,                         #经验
+        "gold": -200,                        #金币
+        "gem": 1000,                         #宝石
+        "prop_xxx": {},                      #道具xxx
+    },
+     {}
+    ]
+}
+
+
+7. 学团解散（可暂不开放）
+[POST] http://ip/api/delete/guild
+{
+    "player": "xxxxx"   #player的openid(会长才能解散学团)
+}
+返回值：
+{
+    "result" : "success"
+}
+
+
+8. 加入学团审核（会长专用，暂不使用，加满为止）
+
+
+
+
+
+===================
+    经济相关API
+===================
+
+
