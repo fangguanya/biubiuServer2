@@ -21,6 +21,7 @@ CREATE TABLE `guild2` (
     `latitude`  float NOT NULL DEFAULT 0 COMMENT 'the latitude of the guild',
     `limit` int NOT NULL DEFAULT 0 COMMENT 'the member limit of the guild',
     `number` int NOT NULL DEFAULT 0 COMMENT 'the member numbers of the guild',
+    `status` varchar(32) NOT NULL DEFAULT '' COMMENT 'the status of the guild',
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 

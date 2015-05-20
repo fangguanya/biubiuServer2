@@ -89,8 +89,8 @@ class Database:
             #print "__create_connection %s" %(ret)
 
             # insert project
-            sql = "insert into guild2(createrOpenID, name, head, createTime, guild2.limit) values ('%s','%s','%s','%s','%s');" \
-                %self.__escape_tuple(createrOpenID,name,head,datetime.now(),"25");
+            sql = "insert into guild2(createrOpenID, name, head, createTime, guild2.limit, guild2.status) values ('%s','%s','%s','%s','%s','%s');" \
+                %self.__escape_tuple(createrOpenID,name,head,datetime.now(),"25", Consts.guild_status_active);
 
             print "sql: %s." %(sql)
             conn.execute(sql);
@@ -228,8 +228,9 @@ class Database:
             update_cmd = ''
             conn = None
 
-            #if params.has_key('name'):
-                #update_cmd = "%s" %(params['name'].encode('utf-8'))
+            # check the must params
+            if  not params.has_key('guild_id'):
+                return "error", "need must param: guild_id. "
 
             if  params.has_key('head'):
                 update_cmd = "%s head='%s'," %(update_cmd, params['head'])
@@ -254,6 +255,9 @@ class Database:
 
             if  params.has_key('number'):
                 update_cmd = "%s number=%s," %(update_cmd, params['number'])
+
+            if  params.has_key('status'):
+                update_cmd = "%s status='%s'," %(update_cmd, params['status'])
 
 
             if  len(update_cmd) > 0:
@@ -331,8 +335,10 @@ class Database:
             update_cmd = ''
             conn = None
 
-            #if params.has_key('name'):
-                #update_cmd = "%s" %(params['name'].encode('utf-8'))
+            # check the must param
+            if not params.has_key('player_openid'):
+                return "error", "no must param: player_openid."
+
 
             if  params.has_key('guild_id'):
                 update_cmd = "%s guildId=%s," %(update_cmd, params['guild_id'])
@@ -364,6 +370,49 @@ class Database:
                 conn.close();
 
             return "error",str(ex)    
+
+    def db_update_player_info_by_guildId(self, params,guild_id):
+        '''
+            Update player info by params
+        '''  
+        conn = None 
+        try:
+            sql = 'UPDATE player SET '
+            update_cmd = ''
+            conn = None
+
+
+            if  params.has_key('guild_id'):
+                update_cmd = "%s guildId='%s'," %(update_cmd, params['guild_id'])
+
+
+            if  len(update_cmd) > 0:
+                sql = "%s %s where guildId=%s;" %(sql, update_cmd[:-1], guild_id)
+            else:
+                return "error","no param can be set"
+
+
+            print sql
+
+            
+            ret, db = self.__connect_to_db();
+            ret,conn = self.__create_connection(db);
+            ret = conn.execute(sql);
+            
+            db.commit();
+
+            if conn is not None:
+                conn.close(); 
+
+            return "success","ok"
+
+
+        except Exception,ex:
+            if conn is not None:
+                conn.close();
+
+            return "error",str(ex)    
+
 
 
     def db_create_guildMember(self, params):
@@ -462,3 +511,50 @@ class Database:
             return "error",str(ex)   
 
 
+    def db_update_all_guildMember_info(self, params):
+        '''
+            Update guildMember info by params
+        '''  
+        conn = None 
+        try:
+            sql = 'UPDATE guildMember2 SET '
+            update_cmd = ''
+            conn = None
+
+            # check the must params
+            if  not params.has_key('guild_id'):
+                return "error","no param: guild_id"
+
+            if  params.has_key('exp'):
+                update_cmd = "%s exp=%s," %(update_cmd, params['exp'])
+
+            if  params.has_key('status'):
+                update_cmd = "%s status='%s'," %(update_cmd, params['status'])
+
+
+            if  len(update_cmd) > 0:
+                sql = "%s %s where guildID=%s;" %(sql, update_cmd[:-1], params['guild_id'])
+            else:
+                return "error","no param can be set"
+
+
+            print sql
+
+            
+            ret, db = self.__connect_to_db();
+            ret,conn = self.__create_connection(db);
+            ret = conn.execute(sql);
+            
+            db.commit();
+
+            if conn is not None:
+                conn.close(); 
+
+            return "success","ok"
+
+
+        except Exception,ex:
+            if conn is not None:
+                conn.close();
+
+            return "error",str(ex)   
