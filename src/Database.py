@@ -133,7 +133,7 @@ class Database:
 
 
             
-            sql = "select guild2.id,guild2.name,guild2.head,level,guild2.limit,guild2.number from guild2;" 
+            sql = "select guild2.id,guild2.name,guild2.head,level,guild2.limit,guild2.number from guild2 where status!='delete';" 
             #Factory.logger.debug("[sql]%s" %(sql));
             print "sql: %s." %(sql)
             conn.execute(sql);
