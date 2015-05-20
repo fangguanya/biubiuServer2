@@ -109,16 +109,15 @@
 6. 获取学团信息（返回学团详细信息）
 [POST] http://ip/api/get/guild
 {
-    "mode" : "guild",       #必选， 根据什么方式获取学团信息，目前支持"guild"（根据学团ID）,"player"（根据用户openid）
-    "guild_id" : 21,           #当"mode"为"guild"时为必选， 学团ID
+    "mode" : "guild",        #必选， 根据什么方式获取学团信息，目前支持"guild"（根据学团ID）,"player"（根据用户openid）
+    "guild_id" : 21,         #当"mode"为"guild"时为必选， 学团ID
     "player" : "xxxx"        #当"mode"为"player"时为必选，用户openid
 }
 
 返回值：
 {
     "result": "success",
-    "guild_info": [
-    {
+    "guild_info": {
         # 详细信息
         "head": "xxx",                       #学团头像URL
         "headID" : 23,                       #学团头像ID
@@ -138,9 +137,19 @@
         "exp" : 100,                         #经验
         "gold": -200,                        #金币
         "gem": 1000,                         #宝石
-        "prop_xxx": {},                      #道具xxx
+        "prop": {},                          #道具
     },
-     {}
+
+    "members" : [
+        {   
+            "openid" : "xxxx",
+            "name": "xxx",
+            "head": "xxx",
+            "level": 3,
+            "guild_exp" : 123,
+            "iscreater" : 0                #是否是团长（创建者），0:不是（普通学员）， 1:是（团长）
+        },
+        {}
     ]
 }
 

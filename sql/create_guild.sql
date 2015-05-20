@@ -13,7 +13,7 @@ CREATE TABLE `guild2` (
     `exp` int NOT NULL DEFAULT 0 COMMENT 'the exp of the guild',
     `gold` int NOT NULL DEFAULT 0 COMMENT 'the gold of the guild',
     `gem` int NOT NULL DEFAULT 0 COMMENT 'the gem of the guild',
-    `prop` varchar(128) NOT NULL DEFAULT 0 COMMENT 'the prop of the guild',
+    `prop` varchar(128) NOT NULL DEFAULT '{}' COMMENT 'the prop of the guild',
     `province` int NOT NULL DEFAULT 0 COMMENT 'the province of the guild',
     `city` int NOT NULL DEFAULT 0 COMMENT 'the city of the guild',
     `county` int NOT NULL DEFAULT 0 COMMENT 'the county of the guild',

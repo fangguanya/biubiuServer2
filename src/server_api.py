@@ -682,9 +682,15 @@ class Server:
                     return "%s" %(json.dumps(response)) 
 
                 self.logger.debug('Get guild info: %s.' %(json.dumps(guild_info)))
+                
+                response['guild_info'] = guild_info[0]
 
+                # get the guild members info
+
+
+
+                
                 response['result'] = "success"
-                response['guild_info'] = guild_info
                 return "%s" %(json.dumps(response)) 
 
             except Exception,ex:
