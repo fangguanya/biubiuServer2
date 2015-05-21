@@ -597,7 +597,8 @@ class Server:
         @bottle.route('/api/get/guild' , method="POST")
         def api_get_guild_info():
             response = {}
-            response['result'] = 'error'
+            response['result']  = 'error'
+            response['members'] = []
 
             guild_id = None
             try:
@@ -686,9 +687,33 @@ class Server:
                 response['guild_info'] = guild_info[0]
 
                 # get the guild members info
+                ret,msg,guild_members = self.database.db_get_guildMembers_by_guildID(guild_id)
+                if ret != 'success':
+                    response['result'] = 'error'
+                    response['message'] = 'get guild info error:%s.' %(msg)
+                    return "%s" %(json.dumps(response)) 
+
+                self.logger.debug('Get guild member info: %s.' %(json.dumps(guild_members)))
+                # get the guild members more info
+                for member_one in guild_members:
+                    ret,msg,player_info = self.database.db_get_player_by_openid(member_one['openid'])
+                    if  ret != 'success':
+                        self.logger.error('Get guild member:%s player info error: %s.' %(member_one['openid'], msg))
+
+                        member_one['name']  = ''
+                        member_one['head']  = ''
+                        member_one['level'] = 0
+                    else:
+                        self.logger.debug('Get guild member:%s player info : %s.' %(member_one['openid'], player_info[0]))
+                        member_one['name']  = player_info[0]['name']
+                        member_one['head']  = player_info[0]['head']
+                        member_one['level'] = player_info[0]['level']
+
+                    if member_one['openid'] == guild_info[0]['createrOpenID']:
+                        member_one['iscreater'] = 1
 
 
-
+                response['members'] = guild_members
                 
                 response['result'] = "success"
                 return "%s" %(json.dumps(response)) 
@@ -931,10 +956,10 @@ class Server:
 
 
 if __name__ == "__main__":
-    server = Server('0.0.0.0', 80, logging.DEBUG)
+    server = Server('0.0.0.0', 9092, logging.DEBUG)
     server.run()
 
 else:
     #os.chdir(os.path.dirname(__file__))
-    server = Server('0.0.0.0', 80, logging.DEBUG)
+    server = Server('0.0.0.0', 9090, logging.DEBUG)
     application = bottle.default_app()

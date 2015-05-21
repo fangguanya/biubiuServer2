@@ -300,7 +300,7 @@ class Database:
             ret,conn = self.__create_connection(db);
 
             # insert project
-            sql = "select id, account, guildID from player where player.account='%s';"  %(openid)
+            sql = "select id, account, guildID, name, headurl, level from player where player.account='%s';"  %(openid)
             #Factory.logger.debug("[sql]%s" %(sql));
             print "sql: %s." %(sql)
             conn.execute(sql);
@@ -309,10 +309,14 @@ class Database:
 
             for row in dataset:
                 result_one = {}
-                result_one['id'] = row[0]
+                result_one['id']      = row[0]
                 result_one['account'] = row[1]
                 result_one['guildID'] = row[2]
+                result_one['name']    = row[3]
+                result_one['head']    = row[4]
+                result_one['level']   = row[5]
 
+                #print result_one
                 result.append(result_one)
 
             if conn is not None:
@@ -460,6 +464,41 @@ class Database:
 
             return "error",str(ex),None
 
+    def db_get_guildMembers_by_guildID(self, guildID):
+        '''
+            get the guildMembers.
+        '''
+        try:
+            result = []
+            conn = None;
+            ret, db = self.__connect_to_db();
+            ret,conn = self.__create_connection(db);
+
+            sql = "select playerOpenID, exp from guildMember2 where guildID=%s and status='%s';"  %(guildID, Consts.guildMember_status_active)
+            
+            print "sql: %s." %(sql)
+            conn.execute(sql);
+
+            dataset = conn.fetchall();
+
+            for row in dataset:
+                result_one = {}
+                result_one['openid'] = row[0]
+                result_one['guild_exp'] = row[1]
+
+                result_one['iscreater'] = 0
+                result.append(result_one)
+
+            if conn is not None:
+                conn.close(); 
+            
+            return "success","ok",result;
+
+        except Exception,ex:
+            if conn is not None:
+                conn.close();
+
+            return "error",str(ex),result
 
     def db_update_guildMember_info(self, params):
         '''
