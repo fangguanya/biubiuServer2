@@ -1,0 +1,7 @@
+<uwsgi>
+<socket>:9090</socket>
+<chdir>/root/biubiuServer2/src</chdir>
+<wsgi-file>server_api.py</wsgi-file>
+<module>extension</module>
+<processes>4</processes>
+</uwsgi>

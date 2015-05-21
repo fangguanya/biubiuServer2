@@ -937,4 +937,4 @@ if __name__ == "__main__":
 else:
     #os.chdir(os.path.dirname(__file__))
     server = Server('0.0.0.0', 80, logging.DEBUG)
-    application = default_app()
+    application = bottle.default_app()
