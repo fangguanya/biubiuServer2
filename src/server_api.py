@@ -950,6 +950,148 @@ class Server:
                 return "%s" %(json.dumps(response)) 
 
 
+
+        @bottle.route('/api/update/guild', method="POST")
+        def api_update_guild():
+            response = {}
+            response['result'] = 'error'
+
+            try:
+                self.logger.debug('handle a request: /api/update/guild ')   
+                # get the data
+                post_data = bottle.request.body.getvalue()
+                self.logger.debug('handle the request data: %s' %(post_data))
+
+                '''
+                    post data format:
+                    {
+                        "player" : "PLAYER_ID",         
+                        "guild_id" : 92 ,              
+                        
+                        
+                        "head": "xxx",            
+                        "headID" : 23,
+                        "province" : 8, 
+                        "city": 23,
+                        "county" : 11, 
+                        "longitude" : 23.456, 
+                        "latitude" : 33.456, 
+                    }
+                '''
+                post_data_json = json.loads(post_data)
+
+
+                # check must key
+                if not post_data_json.has_key('player'):
+                    response['result'] = 'error'
+                    response['message'] = 'need param: player.'
+                    return "%s" %(json.dumps(response)) 
+                if not post_data_json.has_key('guild_id'):
+                    response['result'] = 'error'
+                    response['message'] = 'need param: guild_id.'
+                    return "%s" %(json.dumps(response)) 
+
+                # check the params value
+                if  post_data_json.has_key('player'):
+                    if not isinstance(post_data_json['player'], basestring):
+                        response['result'] = 'error'
+                        response['message'] = 'The type error, the param: player type should be string.'
+                        return "%s" %(json.dumps(response)) 
+
+                if  post_data_json.has_key('guild_id'):
+                    if not isinstance(post_data_json['guild_id'], int):
+                        response['result'] = 'error'
+                        response['message'] = 'The type error, the param: guild_id type should be int.'
+                        return "%s" %(json.dumps(response)) 
+
+
+                # get the player info
+                ret,msg,player_info = self.database.db_get_player_by_openid(post_data_json['player'])
+                if ret != 'success':
+                    response['result'] = 'error'
+                    response['message'] = 'get player error:%s.' %(msg)
+                    return "%s" %(json.dumps(response)) 
+
+                if len(player_info) < 1:
+                    response['result'] = 'error'
+                    response['message'] = 'there is no player for id:%s.' %(post_data_json['player'])
+                    return "%s" %(json.dumps(response)) 
+
+                self.logger.debug('Get player info: %s.' %(json.dumps(player_info)))
+
+                # check player has if or not join guild.
+                if player_info[0]['guildID'] <= 0:
+                    response['result'] = 'success'
+                    response['message'] = 'player:%s not in any guild, so cant update guild.' %(post_data_json['player'])
+                    return "%s" %(json.dumps(response)) 
+
+                post_data_json['guild_id'] = player_info[0]['guildID']
+                # check the guild 
+                ret,msg,guild_info = self.database.db_get_guild_by_guildID(post_data_json['guild_id'])
+                if ret != 'success':
+                    response['result'] = 'error'
+                    response['message'] = 'get guild info error:%s.' %(msg)
+                    return "%s" %(json.dumps(response)) 
+
+                if len(guild_info) < 1:
+                    response['result'] = 'error'
+                    response['message'] = 'there is no guild for id:%s.' %(post_data_json['guild_id'])
+                    return "%s" %(json.dumps(response)) 
+
+                self.logger.debug('Get guild info: %s.' %(json.dumps(guild_info)))
+
+
+                # if the player is not the guild creater, return error
+                if  post_data_json['player'] !=  guild_info[0]['createrOpenID']:
+                    response['result'] = 'error'
+                    response['message'] = 'The player is not guild guild creater, can not to update the guild.'
+                    return "%s" %(json.dumps(response)) 
+
+                # update the guild info
+                update_guild_params = {}
+                update_guild_params['guild_id'] = post_data_json['guild_id']
+                if  post_data_json.has_key('head'):
+                    update_guild_params['head'] = post_data_json['head']
+
+                if  post_data_json.has_key('headID'):
+                    update_guild_params['headID'] = post_data_json['headID']             
+
+                if  post_data_json.has_key('province'):
+                    update_guild_params['province'] = post_data_json['province']   
+
+                if  post_data_json.has_key('city'):
+                    update_guild_params['city'] = post_data_json['city']  
+
+                if  post_data_json.has_key('county'):
+                    update_guild_params['county'] = post_data_json['county']  
+
+                if  post_data_json.has_key('longitude'):
+                    update_guild_params['longitude'] = post_data_json['longitude']  
+
+                if  post_data_json.has_key('latitude'):
+                    update_guild_params['latitude'] = post_data_json['latitude']  
+
+                ret,msg = self.database.db_update_guild_info(update_guild_params)
+                if ret != 'success':
+                    response['result'] = 'error'
+                    response['message'] = 'update the number to guild error:%s.' %(msg)
+                    return "%s" %(json.dumps(response)) 
+                else:
+                    self.logger.debug('update the guild info success.')
+
+
+                response['result'] = "success"
+                return "%s" %(json.dumps(response)) 
+            except Exception,ex:
+                response = {}
+                response['result'] = 'error'
+                response['message'] = '%s' %(str(ex))
+                return "%s" %(json.dumps(response)) 
+
+
+
+
+
     def run(self):
         bottle.run(host=self.ip, port=self.port, debug=True)
 

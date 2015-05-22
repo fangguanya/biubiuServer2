@@ -169,6 +169,38 @@
 
 
 
+9. 学团信息设置
+[POST] http://ip/api/update/guild
+{
+    "player" : "PLAYER_ID",             #必选  (会长才有修改权限)
+    "guild_id" : 92 ,                   #必选, 学团ID
+    
+    #以下是学团可设置的参数，均为可选，使用时可以为一个或多个
+    "head": "xxx",                      #学团头像URL (暂不支持)
+    "headID" : 23,                      #学团头像ID  (暂不支持)
+    "province" : 8,                     #省行政区域码
+    "city": 23,                         #市行政区域码
+    "county" : 11,                      #县行政区域码
+    "longitude" : 23.456,               #经度（浮点数）
+    "latitude" : 33.456,                #纬度（浮点数）
+    
+
+}
+返回值：
+{
+    "result": "success",
+
+     #各个值操作后的结果
+    "head": "xxx",                      #学团头像URL (暂不支持)
+    "headID" : 23,                      #学团头像ID  (暂不支持)
+    "province" : 8,                     #省行政区域码
+    "city": 23,                         #市行政区域码
+    "county" : 11,                      #县行政区域码
+    "longitude" : 23.456,               #经度（浮点数）
+    "latitude" : 33.456,                #纬度（浮点数） 
+}
+
+
 
 
 ===================
