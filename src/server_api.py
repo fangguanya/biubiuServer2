@@ -1089,6 +1089,156 @@ class Server:
                 return "%s" %(json.dumps(response)) 
 
 
+        @bottle.route('/api/update/props', method="POST")
+        def api_update_props():
+            response = {}
+            response['result'] = 'error'
+
+            try:
+                self.logger.debug('handle a request: /api/update/props ')   
+                # get the data
+                post_data = bottle.request.body.getvalue()
+                self.logger.debug('handle the request data: %s' %(post_data))
+
+                '''
+                    {
+                        "who" : "player",
+                        "openid" : "xxx",
+                        "guildid" : 23,
+
+                        "exp" : 100,
+                        "gold": -200,
+                        "gem": 1000,
+                        "prop": {
+                                "bomb" : 20,
+                                "glass": 30,
+                                "delay": 10,
+                                "point": 10
+                        }
+                    }
+                '''
+                post_data_json = json.loads(post_data)
+
+
+                # check must key
+                if not post_data_json.has_key('who'):
+                    response['result'] = 'error'
+                    response['message'] = 'need param: who.'
+                    return "%s" %(json.dumps(response)) 
+
+                if  post_data_json['who'] == 'player':
+                    if not post_data_json.has_key('player'):
+                        response['result'] = 'error'
+                        response['message'] = 'need param: player.'
+                        return "%s" %(json.dumps(response)) 
+
+                elif post_data_json['who'] == 'guild':
+                    if not post_data_json.has_key('guildid'):
+                        response['result'] = 'error'
+                        response['message'] = 'need param: guildid.'
+                        return "%s" %(json.dumps(response)) 
+
+                else:
+                    response['result'] = 'error'
+                    response['message'] = 'param: who not support value:%s.' %(post_data_json['who'])
+                    return "%s" %(json.dumps(response)) 
+
+
+                # check the params value
+                if  post_data_json.has_key('player'):
+                    if not isinstance(post_data_json['player'], basestring):
+                        response['result'] = 'error'
+                        response['message'] = 'The type error, the param: player type should be string.'
+                        return "%s" %(json.dumps(response)) 
+
+                if  post_data_json.has_key('guildid'):
+                    if not isinstance(post_data_json['guildid'], int):
+                        response['result'] = 'error'
+                        response['message'] = 'The type error, the param: guildid type should be int.'
+                        return "%s" %(json.dumps(response)) 
+
+                if  post_data_json.has_key('exp'):
+                    if not isinstance(post_data_json['exp'], int):
+                        response['result'] = 'error'
+                        response['message'] = 'The type error, the param: exp type should be int.'
+                        return "%s" %(json.dumps(response))             
+
+
+                if  post_data_json.has_key('gold'):
+                    if not isinstance(post_data_json['gold'], int):
+                        response['result'] = 'error'
+                        response['message'] = 'The type error, the param: gold type should be int.'
+                        return "%s" %(json.dumps(response))   
+
+                if  post_data_json.has_key('gem'):
+                    if not isinstance(post_data_json['gem'], int):
+                        response['result'] = 'error'
+                        response['message'] = 'The type error, the param: gem type should be int.'
+                        return "%s" %(json.dumps(response))  
+
+
+                if  post_data_json.has_key('prop'):
+                    if not isinstance(post_data_json['prop'], dict):
+                        response['result'] = 'error'
+                        response['message'] = 'The type error, the param: prop type should be int.'
+                        return "%s" %(json.dumps(response)) 
+
+
+                # get the player info
+                ret,msg,player_info = self.database.db_get_player_by_openid(post_data_json['player'])
+                if ret != 'success':
+                    response['result'] = 'error'
+                    response['message'] = 'get player error:%s.' %(msg)
+                    return "%s" %(json.dumps(response)) 
+
+                if len(player_info) < 1:
+                    response['result'] = 'error'
+                    response['message'] = 'there is no player for id:%s.' %(post_data_json['player'])
+                    return "%s" %(json.dumps(response)) 
+
+                self.logger.debug('Get player info: %s.' %(json.dumps(player_info)))
+
+                # check player has if or not join guild.
+                if player_info[0]['guildID'] <= 0:
+                    response['result'] = 'success'
+                    response['message'] = 'player:%s not in any guild, so cant update guild.' %(post_data_json['player'])
+                    return "%s" %(json.dumps(response)) 
+
+                post_data_json['guild_id'] = player_info[0]['guildID']
+                # check the guild 
+                ret,msg,guild_info = self.database.db_get_guild_by_guildID(post_data_json['guild_id'])
+                if ret != 'success':
+                    response['result'] = 'error'
+                    response['message'] = 'get guild info error:%s.' %(msg)
+                    return "%s" %(json.dumps(response)) 
+
+                if len(guild_info) < 1:
+                    response['result'] = 'error'
+                    response['message'] = 'there is no guild for id:%s.' %(post_data_json['guild_id'])
+                    return "%s" %(json.dumps(response)) 
+
+                self.logger.debug('Get guild info: %s.' %(json.dumps(guild_info)))
+
+
+                # if the player is not the guild creater, return error
+                if  post_data_json['player'] !=  guild_info[0]['createrOpenID']:
+                    response['result'] = 'error'
+                    response['message'] = 'The player is not guild guild creater, can not to update the guild.'
+                    return "%s" %(json.dumps(response)) 
+
+                # update the guild info
+
+
+                response['result'] = "success"
+                return "%s" %(json.dumps(response)) 
+            except Exception,ex:
+                response = {}
+                response['result'] = 'error'
+                response['message'] = '%s' %(str(ex))
+                return "%s" %(json.dumps(response)) 
+
+
+
 
 
 
