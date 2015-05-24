@@ -197,7 +197,7 @@ class Database:
                 result_one['exp'] = row[7]
                 result_one['gold'] = row[8]
                 result_one['gem'] = row[9]
-                result_one['prop'] = row[10]
+                result_one['prop'] = json.loads(row[10])
                 result_one['province'] = row[11]
                 result_one['city'] = row[12]
                 result_one['county'] = row[13]
@@ -261,6 +261,18 @@ class Database:
             if  params.has_key('status'):
                 update_cmd = "%s status='%s'," %(update_cmd, params['status'])
 
+
+            if  params.has_key('exp'):
+                update_cmd = "%s exp=%s," %(update_cmd, params['exp'])
+
+            if  params.has_key('gold'):
+                update_cmd = "%s gold=%s," %(update_cmd, params['gold'])
+
+            if  params.has_key('gem'):
+                update_cmd = "%s gem=%s," %(update_cmd, params['gem'])
+
+            if  params.has_key('prop'):
+                update_cmd = "%s prop='%s'," %(update_cmd, params['prop'])    
 
             if  len(update_cmd) > 0:
                 sql = "%s %s where id=%s;" %(sql, update_cmd[:-1], params['guild_id'])
@@ -538,7 +550,7 @@ class Database:
                 return "error","no param: player_openid"
 
             if  params.has_key('exp'):
-                update_cmd = "%s exp=%s," %(update_cmd, params['exp'])
+                update_cmd = "%s exp=exp+(%s)," %(update_cmd, params['exp'])
 
             if  params.has_key('status'):
                 update_cmd = "%s status='%s'," %(update_cmd, params['status'])

@@ -1127,9 +1127,9 @@ class Server:
                     return "%s" %(json.dumps(response)) 
 
                 if  post_data_json['who'] == 'player':
-                    if not post_data_json.has_key('player'):
+                    if not post_data_json.has_key('openid'):
                         response['result'] = 'error'
-                        response['message'] = 'need param: player.'
+                        response['message'] = 'need param: openid.'
                         return "%s" %(json.dumps(response)) 
 
                 elif post_data_json['who'] == 'guild':
@@ -1145,10 +1145,10 @@ class Server:
 
 
                 # check the params value
-                if  post_data_json.has_key('player'):
-                    if not isinstance(post_data_json['player'], basestring):
+                if  post_data_json.has_key('openid'):
+                    if not isinstance(post_data_json['openid'], basestring):
                         response['result'] = 'error'
-                        response['message'] = 'The type error, the param: player type should be string.'
+                        response['message'] = 'The type error, the param: openid type should be string.'
                         return "%s" %(json.dumps(response)) 
 
                 if  post_data_json.has_key('guildid'):
@@ -1189,7 +1189,7 @@ class Server:
 
                 if  post_data_json['who'] == 'player':
                     # get the player info
-                    ret,msg,player_info = self.database.db_get_player_by_openid(post_data_json['player'])
+                    ret,msg,player_info = self.database.db_get_player_by_openid(post_data_json['openid'])
                     if ret != 'success':
                         response['result'] = 'error'
                         response['message'] = 'get player error:%s.' %(msg)
@@ -1197,14 +1197,14 @@ class Server:
 
                     if len(player_info) < 1:
                         response['result'] = 'error'
-                        response['message'] = 'there is no player for id:%s.' %(post_data_json['player'])
+                        response['message'] = 'there is no player for id:%s.' %(post_data_json['openid'])
                         return "%s" %(json.dumps(response)) 
 
                     self.logger.debug('Get player info: %s.' %(json.dumps(player_info)))
 
                     # update the player info
                     update_player_params = {}
-                    update_player_params['player_openid'] = post_data_json['player']
+                    update_player_params['player_openid'] = post_data_json['openid']
 
                     if post_data_json.has_key('exp'):
                         update_player_params['exp'] = player_info[0]['exp'] + post_data_json['exp']
@@ -1218,10 +1218,26 @@ class Server:
 
                     if post_data_json.has_key('prop'):
                         update_player_param_prop = {}
-                        update_player_param_prop['bomb']  = player_info[0]['prop']['bomb']
-                        update_player_param_prop['glass'] = player_info[0]['prop']['glass']
-                        update_player_param_prop['delay'] = player_info[0]['prop']['delay']
-                        update_player_param_prop['point'] = player_info[0]['prop']['point']
+                        if player_info[0]['prop'].has_key('bomb'):
+                            update_player_param_prop['bomb']  = player_info[0]['prop']['bomb']
+                        else:
+                            update_player_param_prop['bomb'] = 0
+
+                        if player_info[0]['prop'].has_key('glass'):
+                            update_player_param_prop['glass'] = player_info[0]['prop']['glass']
+                        else:
+                            update_player_param_prop['glass'] = 0
+
+                        if player_info[0]['prop'].has_key('delay'):
+                            update_player_param_prop['delay'] = player_info[0]['prop']['delay']
+                        else:
+                            update_player_param_prop['delay'] = 0
+
+                        if player_info[0]['prop'].has_key('point'):
+                            update_player_param_prop['point'] = player_info[0]['prop']['point']
+                        else:
+                            update_player_param_prop['point'] = 0
+
 
                         if post_data_json['prop'].has_key('bomb'):
                             update_player_param_prop['bomb'] += post_data_json['prop']['bomb']
@@ -1246,8 +1262,47 @@ class Server:
                         self.logger.debug('update the player info success.')
 
                     # if has exp, update guild member exp
+                    if player_info[0]['guildID'] > 0 and post_data_json.has_key('exp'):
+                        # check the guild 
+                        ret,msg,guild_info = self.database.db_get_guild_by_guildID(player_info[0]['guildID'])
+                        if ret != 'success':
+                            response['result'] = 'error'
+                            response['message'] = 'get guild info error:%s.' %(msg)
+                            return "%s" %(json.dumps(response)) 
 
-                    # if has exp, update guild exp
+                        if len(guild_info) < 1:
+                            response['result'] = 'error'
+                            response['message'] = 'there is no guild for id:%s.' %(player_info[0]['guildID'])
+                            return "%s" %(json.dumps(response)) 
+
+                        self.logger.debug('Get guild info: %s.' %(json.dumps(guild_info)))
+
+                        # update the guild exp
+                        update_guild_params = {}
+                        update_guild_params['guild_id'] = player_info[0]['guildID']
+                        
+                        update_guild_params['exp'] = guild_info[0]['exp'] + post_data_json['exp']
+
+
+                        ret,msg = self.database.db_update_guild_info(update_guild_params)
+                        if ret != 'success':
+                            response['result'] = 'error'
+                            response['message'] = 'update the number to guild error:%s.' %(msg)
+                            return "%s" %(json.dumps(response)) 
+                        else:
+                            self.logger.debug('update the guild info success.')
+
+
+                        # if has exp, update guild member exp
+                        quit_guild_params = {}
+                        quit_guild_params['guild_id'] = player_info[0]['guildID']
+                        quit_guild_params['player_openid'] = post_data_json['openid']
+                        quit_guild_params['exp'] = post_data_json['exp']
+                        ret, msg = self.database.db_update_guildMember_info(quit_guild_params)
+                        if ret != 'success':
+                            response['result'] = 'error'
+                            response['message'] = 'update the guildMember info error:%s.' %(msg)
+                            return "%s" %(json.dumps(response))  
 
 
                 elif post_data_json['who'] == 'guild':
@@ -1267,6 +1322,62 @@ class Server:
 
                     # update the guild info
                     update_guild_params = {}
+                    update_guild_params['guild_id'] = post_data_json['guildid']
+                    
+                    #update_guild_params['exp'] = guild_info[0]['exp'] + post_data_json['exp']
+                    if post_data_json.has_key('gold'):
+                        update_guild_params['gold'] = guild_info[0]['gold'] + post_data_json['gold']
+
+                    if post_data_json.has_key('gem'):
+                        update_guild_params['gem'] = guild_info[0]['gem'] + post_data_json['gem']
+
+
+                    if post_data_json.has_key('prop'):
+                        update_guild_param_prop = {}
+                        if guild_info[0]['prop'].has_key('bomb'):
+                            update_guild_param_prop['bomb']  = guild_info[0]['prop']['bomb']
+                        else:
+                            update_guild_param_prop['bomb'] = 0
+
+                        if guild_info[0]['prop'].has_key('glass'):
+                            update_guild_param_prop['glass'] = guild_info[0]['prop']['glass']
+                        else:
+                            update_guild_param_prop['glass'] = 0
+
+                        if guild_info[0]['prop'].has_key('delay'):
+                            update_guild_param_prop['delay'] = guild_info[0]['prop']['delay']
+                        else:
+                            update_guild_param_prop['delay'] = 0
+
+                        if guild_info[0]['prop'].has_key('point'):
+                            update_guild_param_prop['point'] = guild_info[0]['prop']['point']
+                        else:
+                            update_guild_param_prop['point'] = 0
+
+
+                        if post_data_json['prop'].has_key('bomb'):
+                            update_guild_param_prop['bomb'] += post_data_json['prop']['bomb']
+
+                        if post_data_json['prop'].has_key('glass'):
+                            update_guild_param_prop['glass'] += post_data_json['prop']['glass']
+ 
+                        if post_data_json['prop'].has_key('delay'):
+                            update_guild_param_prop['delay'] += post_data_json['prop']['delay']
+
+                        if post_data_json['prop'].has_key('point'):
+                            update_guild_param_prop['point'] += post_data_json['prop']['point']
+
+                        update_guild_params['prop'] = json.dumps(update_guild_param_prop)
+
+
+
+                    ret,msg = self.database.db_update_guild_info(update_guild_params)
+                    if ret != 'success':
+                        response['result'] = 'error'
+                        response['message'] = 'update the number to guild error:%s.' %(msg)
+                        return "%s" %(json.dumps(response)) 
+                    else:
+                        self.logger.debug('update the guild info success.')
 
 
 
