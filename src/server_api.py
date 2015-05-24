@@ -1157,11 +1157,14 @@ class Server:
                         response['message'] = 'The type error, the param: guildid type should be int.'
                         return "%s" %(json.dumps(response)) 
 
+
+
                 if  post_data_json.has_key('exp'):
                     if not isinstance(post_data_json['exp'], int):
                         response['result'] = 'error'
                         response['message'] = 'The type error, the param: exp type should be int.'
                         return "%s" %(json.dumps(response))             
+
 
 
                 if  post_data_json.has_key('gold'):
@@ -1184,49 +1187,87 @@ class Server:
                         return "%s" %(json.dumps(response)) 
 
 
-                # get the player info
-                ret,msg,player_info = self.database.db_get_player_by_openid(post_data_json['player'])
-                if ret != 'success':
-                    response['result'] = 'error'
-                    response['message'] = 'get player error:%s.' %(msg)
-                    return "%s" %(json.dumps(response)) 
+                if  post_data_json['who'] == 'player':
+                    # get the player info
+                    ret,msg,player_info = self.database.db_get_player_by_openid(post_data_json['player'])
+                    if ret != 'success':
+                        response['result'] = 'error'
+                        response['message'] = 'get player error:%s.' %(msg)
+                        return "%s" %(json.dumps(response)) 
 
-                if len(player_info) < 1:
-                    response['result'] = 'error'
-                    response['message'] = 'there is no player for id:%s.' %(post_data_json['player'])
-                    return "%s" %(json.dumps(response)) 
+                    if len(player_info) < 1:
+                        response['result'] = 'error'
+                        response['message'] = 'there is no player for id:%s.' %(post_data_json['player'])
+                        return "%s" %(json.dumps(response)) 
 
-                self.logger.debug('Get player info: %s.' %(json.dumps(player_info)))
+                    self.logger.debug('Get player info: %s.' %(json.dumps(player_info)))
 
-                # check player has if or not join guild.
-                if player_info[0]['guildID'] <= 0:
-                    response['result'] = 'success'
-                    response['message'] = 'player:%s not in any guild, so cant update guild.' %(post_data_json['player'])
-                    return "%s" %(json.dumps(response)) 
+                    # update the player info
+                    update_player_params = {}
+                    update_player_params['player_openid'] = post_data_json['player']
 
-                post_data_json['guild_id'] = player_info[0]['guildID']
-                # check the guild 
-                ret,msg,guild_info = self.database.db_get_guild_by_guildID(post_data_json['guild_id'])
-                if ret != 'success':
-                    response['result'] = 'error'
-                    response['message'] = 'get guild info error:%s.' %(msg)
-                    return "%s" %(json.dumps(response)) 
+                    if post_data_json.has_key('exp'):
+                        update_player_params['exp'] = player_info[0]['exp'] + post_data_json['exp']
 
-                if len(guild_info) < 1:
-                    response['result'] = 'error'
-                    response['message'] = 'there is no guild for id:%s.' %(post_data_json['guild_id'])
-                    return "%s" %(json.dumps(response)) 
+                    if post_data_json.has_key('gold'):
+                        update_player_params['gold'] = player_info[0]['gold'] + post_data_json['gold']
 
-                self.logger.debug('Get guild info: %s.' %(json.dumps(guild_info)))
+                    # player not support gem yeat
+                    #if post_data_json.has_key('gem'):
+                    #    update_player_params['gem'] = player_info[0]['gem'] + post_data_json['gem']
+
+                    if post_data_json.has_key('prop'):
+                        update_player_param_prop = {}
+                        update_player_param_prop['bomb']  = player_info[0]['prop']['bomb']
+                        update_player_param_prop['glass'] = player_info[0]['prop']['glass']
+                        update_player_param_prop['delay'] = player_info[0]['prop']['delay']
+                        update_player_param_prop['point'] = player_info[0]['prop']['point']
+
+                        if post_data_json['prop'].has_key('bomb'):
+                            update_player_param_prop['bomb'] += post_data_json['prop']['bomb']
+
+                        if post_data_json['prop'].has_key('glass'):
+                            update_player_param_prop['glass'] += post_data_json['prop']['glass']
+ 
+                        if post_data_json['prop'].has_key('delay'):
+                            update_player_param_prop['delay'] += post_data_json['prop']['delay']
+
+                        if post_data_json['prop'].has_key('point'):
+                            update_player_param_prop['point'] += post_data_json['prop']['point']
+
+                        update_player_params['prop'] = json.dumps(update_player_param_prop)
+
+                    ret,msg = self.database.db_update_player_info(update_player_params)
+                    if ret != 'success':
+                        response['result'] = 'error'
+                        response['message'] = 'update the player info error:%s.' %(msg)
+                        return "%s" %(json.dumps(response))   
+                    else:
+                        self.logger.debug('update the player info success.')
+
+                    # if has exp, update guild member exp
+
+                    # if has exp, update guild exp
 
 
-                # if the player is not the guild creater, return error
-                if  post_data_json['player'] !=  guild_info[0]['createrOpenID']:
-                    response['result'] = 'error'
-                    response['message'] = 'The player is not guild guild creater, can not to update the guild.'
-                    return "%s" %(json.dumps(response)) 
+                elif post_data_json['who'] == 'guild':
+                    # check the guild 
+                    ret,msg,guild_info = self.database.db_get_guild_by_guildID(post_data_json['guildid'])
+                    if ret != 'success':
+                        response['result'] = 'error'
+                        response['message'] = 'get guild info error:%s.' %(msg)
+                        return "%s" %(json.dumps(response)) 
 
-                # update the guild info
+                    if len(guild_info) < 1:
+                        response['result'] = 'error'
+                        response['message'] = 'there is no guild for id:%s.' %(post_data_json['guildid'])
+                        return "%s" %(json.dumps(response)) 
+
+                    self.logger.debug('Get guild info: %s.' %(json.dumps(guild_info)))
+
+                    # update the guild info
+                    update_guild_params = {}
+
 
 
                 response['result'] = "success"

@@ -300,7 +300,7 @@ class Database:
             ret,conn = self.__create_connection(db);
 
             # insert project
-            sql = "select id, account, guildID, name, headurl, level from player where player.account='%s';"  %(openid)
+            sql = "select id, account, guildID, name, headurl, level, gold, exp, gem, prop from player where player.account='%s';"  %(openid)
             #Factory.logger.debug("[sql]%s" %(sql));
             print "sql: %s." %(sql)
             conn.execute(sql);
@@ -315,6 +315,13 @@ class Database:
                 result_one['name']    = row[3]
                 result_one['head']    = row[4]
                 result_one['level']   = row[5]
+
+                result_one['gold']   = row[6]
+                result_one['exp']    = row[7]
+                result_one['gem']    = row[8]
+                result_one['prop']   = json.loads(row[9])
+
+
 
                 #print result_one
                 result.append(result_one)
@@ -348,6 +355,19 @@ class Database:
 
             if  params.has_key('guild_id'):
                 update_cmd = "%s guildId=%s," %(update_cmd, params['guild_id'])
+
+            if  params.has_key('exp'):
+                update_cmd = "%s exp=%s," %(update_cmd, params['exp'])
+
+            if  params.has_key('gold'):
+                update_cmd = "%s gold=%s," %(update_cmd, params['gold'])
+
+            if  params.has_key('prop'):
+                update_cmd = "%s prop='%s'," %(update_cmd, params['prop'])
+
+            if  params.has_key('gem'):
+                update_cmd = "%s gem=%s," %(update_cmd, params['gem'])
+
 
 
             if  len(update_cmd) > 0:

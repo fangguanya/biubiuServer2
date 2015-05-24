@@ -5,3 +5,9 @@
 1.在player表中增加guildID字段，用来标识用户的学团信息。
 alter table `player` add column `guildId` int NOT NULL DEFAULT 0;
 
+###### 2015.5.24 ######
+2.在player表中增加gem字段，用来标识用户的宝石数量。
+alter table `player` add column `gem` int NOT NULL DEFAULT 0;
+
+3.在player表中增加prop字段，用来标识用户的道具信息。
+alter table `player` add column `prop` varchar(128) NOT NULL DEFAULT '{}';
