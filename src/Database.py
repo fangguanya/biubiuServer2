@@ -120,7 +120,7 @@ class Database:
 
             return "error","not do",None
 
-    def db_search_guild(self, number):
+    def db_search_guild(self, offset=0, number=25):
         '''
             Search the guild, and return the guild list.
         '''
@@ -133,7 +133,7 @@ class Database:
 
 
             
-            sql = "select guild2.id,guild2.name,guild2.head,level,guild2.limit,guild2.number,createrOpenID from guild2 where status!='delete';" 
+            sql = "select guild2.id,guild2.name,guild2.head,level,guild2.limit,guild2.number,createrOpenID from guild2 where status!='delete' order by exp desc limit %s,%s;" %(offset, number)
             #Factory.logger.debug("[sql]%s" %(sql));
             print "sql: %s." %(sql)
             conn.execute(sql);

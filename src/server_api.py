@@ -526,7 +526,17 @@ class Server:
                     return "%s" %(json.dumps(response))        
 
                 if post_data_json['mode'] == 'all':
-                    ret,msg,guilds = self.database.db_search_guild(20)
+                    offset = 0
+                    number = 25
+                    if post_data_json.has_key('range_min'):
+                        if isinstance(post_data_json['range_min'],int):
+                            offset = post_data_json['range_min'] - 1
+                    
+                    if post_data_json.has_key('range_max'):
+                        if isinstance(post_data_json['range_max'],int):
+                            number = post_data_json['range_max'] - offset
+
+                    ret,msg,guilds = self.database.db_search_guild(offset, number)
                 #elif 
 
                 else:
