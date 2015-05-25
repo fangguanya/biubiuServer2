@@ -263,12 +263,59 @@ class Server:
             response['result'] = 'error'
             response['logo_url'] = ''
 
-            # just for test
-            response['result'] = 'success'
-            response['logo_url'] = '/images/agency/teamnxxt.png'
-            return "%s" %(json.dumps(response))
+            try:
+                self.logger.debug('handle a request:/api/verify/license, ')
+
+                # get the data
+                post_data = bottle.request.body.getvalue()
+                self.logger.debug('handle the request data: %s' %(post_data))
+                '''
+                    {
+                        "license" : "LICENSE_CODE",
+                        "player" : "PLAYER_ID"
+                    }
+                '''
+                post_data_json = json.loads(post_data)
 
 
+                # check the must params
+                if not post_data_json.has_key('license'):
+                    response['result'] = 'error'
+                    response['message'] = 'need param license.'
+                    return "%s" %(json.dumps(response))   
+
+
+                # get the license info by param:license
+                ret,msg,license_info = self.database.db_get_license(post_data_json['license'])
+                if ret != 'success':
+                    response['result'] = 'error'
+                    response['message'] = 'get license error:%s.' %(msg)
+                    return "%s" %(json.dumps(response)) 
+
+                if len(license_info) < 1:
+                    response['result'] = 'error'
+                    response['message'] = 'there is no license:%s.' %(post_data_json['license'])
+                    return "%s" %(json.dumps(response)) 
+
+                # if license has been used, return 'error'
+                if license_info[0]['status'] != Consts.license_active:
+                    response['result'] = 'error'
+                    response['message'] = 'The license:%s has been used.' %(post_data_json['license'])
+                    return "%s" %(json.dumps(response)) 
+
+
+
+                # just for test
+                response['result'] = 'success'
+                response['logo_url'] = license_info[0]['logo'] 
+
+                return "%s" %(json.dumps(response))
+
+            except Exception,ex:
+                response = {}
+                response['result'] = 'error'
+                response['message'] = '%s' %(str(ex))
+                return "%s" %(json.dumps(response)) 
 
         @bottle.route('/api/create/guild', method="POST")
         def api_create_guild():
@@ -293,6 +340,32 @@ class Server:
                     }
                 '''
                 post_data_json = json.loads(post_data)
+
+                # chekc license
+                # check the must params
+                if not post_data_json.has_key('license'):
+                    response['result'] = 'error'
+                    response['message'] = 'need param license.'
+                    return "%s" %(json.dumps(response))   
+
+
+                # get the license info by param:license
+                ret,msg,license_info = self.database.db_get_license(post_data_json['license'])
+                if ret != 'success':
+                    response['result'] = 'error'
+                    response['message'] = 'get license error:%s.' %(msg)
+                    return "%s" %(json.dumps(response)) 
+
+                if len(license_info) < 1:
+                    response['result'] = 'error'
+                    response['message'] = 'there is no license:%s.' %(post_data_json['license'])
+                    return "%s" %(json.dumps(response)) 
+
+                # if license has been used, return 'error'
+                if license_info[0]['status'] != Consts.license_active:
+                    response['result'] = 'error'
+                    response['message'] = 'The license:%s has been used.' %(post_data_json['license'])
+                    return "%s" %(json.dumps(response)) 
 
                 # check the params
                 if post_data_json.has_key('player'):
@@ -326,6 +399,11 @@ class Server:
 
                 guild_id = -1
                 # create the guild
+                if license_info[0]['logo'] != '':
+                    post_data_json['logo'] = license_info[0]['logo']
+
+                response['logo_url'] = post_data_json['logo']
+
                 ret, msg, guild_id = self.database.db_create_guild(post_data_json)
                 if  ret != 'success':
                     response['result'] = 'error'
@@ -333,6 +411,19 @@ class Server:
                     return "%s" %(json.dumps(response)) 
                 else:
                     self.logger.debug('guild create success, id: %s' %(guild_id))
+
+
+                # update the license info
+                license_update_params = {}
+                license_update_params['license'] = post_data_json['license']
+                license_update_params['playerOpenID'] = post_data_json['player']
+                license_update_params['playerID'] = player_info[0]['id']
+                license_update_params['status'] = Consts.license_used
+                ret, msg = self.database.db_update_license(license_update_params)
+                if  ret != 'success':
+                    response['result'] = 'error'
+                    response['message'] = 'update license error:%s.' %(msg)
+                    return "%s" %(json.dumps(response)) 
 
 
 
@@ -377,6 +468,7 @@ class Server:
 
                 response['result'] = 'success'
                 response['id'] = guild_id
+
                 return "%s" %(json.dumps(response))
 
             except Exception,ex:

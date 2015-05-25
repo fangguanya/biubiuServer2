@@ -648,8 +648,8 @@ class Database:
             ret, db = self.__connect_to_db();
             ret,conn = self.__create_connection(db);
 
-            sql = "insert into license(logo, name, license, createTime) values ('%s','%s','%s','%s');" \
-                %self.__escape_tuple(logo, name, license, datetime.now());
+            sql = "insert into license(logo, name, license, status, createTime) values ('%s','%s','%s','%s','%s');" \
+                %self.__escape_tuple(logo, name, license, Consts.license_active, datetime.now());
 
             print "sql: %s." %(sql)
             conn.execute(sql);
@@ -675,6 +675,45 @@ class Database:
                 conn.close();
 
             return "error",str(ex),None
+
+    def db_get_license(self, license):
+        '''
+            get the license info.
+        '''
+        try:
+            result = []
+            conn = None;
+            ret, db = self.__connect_to_db();
+            ret,conn = self.__create_connection(db);
+
+            sql = "select logo, name, status, playerID, playerOpenID from license where license='%s';"  %(license)
+            
+            print "sql: %s." %(sql)
+            conn.execute(sql);
+
+            dataset = conn.fetchall();
+
+            for row in dataset:
+                result_one = {}
+                result_one['logo'] = row[0]
+                result_one['name'] = row[1]
+                result_one['status'] = row[2]
+                result_one['playerID'] = row[3]
+                result_one['playerOpenID'] = row[4]
+
+
+                result.append(result_one)
+
+            if conn is not None:
+                conn.close(); 
+            
+            return "success","ok",result;
+
+        except Exception,ex:
+            if conn is not None:
+                conn.close();
+
+            return "error",str(ex),result
 
 
     def db_update_license(self, params):

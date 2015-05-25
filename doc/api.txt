@@ -26,7 +26,7 @@
     "player" : "PLAYER_ID",
     "license": "LICENSE_CODE",
     "name" : "NAME",
-    "logo" : "Logo_ID"
+    "logo" : "xxx"                  
 }
 返回值：
 {
