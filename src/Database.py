@@ -631,3 +631,108 @@ class Database:
                 conn.close();
 
             return "error",str(ex)   
+
+
+    def db_create_license(self, params):
+        '''
+            Create the license
+        '''
+        conn = None
+        try:
+            # check must params
+            logo = params['logo']
+            name = params['name'].encode('utf-8')
+            license = params['license']
+
+            
+            ret, db = self.__connect_to_db();
+            ret,conn = self.__create_connection(db);
+
+            sql = "insert into license(logo, name, license, createTime) values ('%s','%s','%s','%s');" \
+                %self.__escape_tuple(logo, name, license, datetime.now());
+
+            print "sql: %s." %(sql)
+            conn.execute(sql);
+
+            # get the project id.
+            conn.execute("select @@identity;");
+            source_id_ret = conn.fetchone();
+            if source_id_ret is None or len(source_id_ret) < 1:
+                #raise TVieException(Consts.error_db_create_source_failed, "create transcode task failed! name=%s items=%s" %(name_str,items_str));
+                msg = "create guild failed!"
+                print msg
+                #Factory.logger.error("%s" %(msg));
+                return "error",msg, None
+        
+            db.commit();
+            
+            guildMemver_id = source_id_ret[0];
+
+            return "success","ok",guildMemver_id;
+
+        except Exception,ex:
+            if conn is not None:
+                conn.close();
+
+            return "error",str(ex),None
+
+
+    def db_update_license(self, params):
+        '''
+            update the license
+        '''
+        conn = None 
+        try:
+            sql = 'UPDATE license SET '
+            update_cmd = ''
+            conn = None
+
+            # check the must params
+            if  not params.has_key('license'):
+                return "error","no param: license"
+
+            if  not params.has_key('playerOpenID'):
+                return "error","no param: playerOpenID"
+
+            if  params.has_key('playerOpenID'):
+                update_cmd = "%s playerOpenID='%s'," %(update_cmd, params['playerOpenID'])
+
+            if  params.has_key('playerID'):
+                update_cmd = "%s playerID=%s," %(update_cmd, params['playerID'])
+
+            if  params.has_key('status'):
+                update_cmd = "%s status='%s'," %(update_cmd, params['status'])
+
+                if params['status'] == Consts.license_used:
+                    update_cmd = "%s usedTime='%s'," %(update_cmd, datetime.now())
+
+
+            if  len(update_cmd) > 0:
+                sql = "%s %s where license='%s';" %(sql, update_cmd[:-1], params['license'])
+            else:
+                return "error","no param can be set"
+
+
+            print sql
+
+            
+            ret, db = self.__connect_to_db();
+            ret,conn = self.__create_connection(db);
+            ret = conn.execute(sql);
+            
+            db.commit();
+
+            if conn is not None:
+                conn.close(); 
+
+            return "success","ok"
+
+
+        except Exception,ex:
+            if conn is not None:
+                conn.close();
+
+            return "error",str(ex)   
+
+
+
