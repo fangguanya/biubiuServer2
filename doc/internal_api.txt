@@ -1,0 +1,14 @@
+
+1. 创建license
+该API作用是创建license, 用于验证用户是否有创建学团资格
+[POST] http://ip:9096/api0/create/license
+{
+    "logo"   : "xxx",
+    "name"   : "xxx"
+}
+返回值：
+{
+    "result" : "success",
+    "license" : "xxx"
+}
+

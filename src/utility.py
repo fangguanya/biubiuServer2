@@ -6,6 +6,10 @@ import subprocess
 
 class Utility:
     ''' class utility '''
+    base62_alphabet = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
+    base64_alphabet = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-/'
+
+
     def __init__(self):
         # save the os name for utest to mock it.
         self.os_name = os.name;
@@ -47,3 +51,52 @@ class Utility:
             return 'error',str(ex)
 
 
+    def base62_encode(self, number, alphabet=base62_alphabet):
+        '''
+            Default: encode a number in base 62. user can define alphabet for base x.
+            'num': The number to encode
+            'alphabet': The alphabet to use for encoding
+        '''
+        try:
+
+            # the number must 'int'
+            if not isinstance( number, int):
+                return "error","number must int."
+
+            if  number == 0:
+                return 'success', '0'
+
+            arr = []
+            base = len(alphabet)
+            while number:
+                rem = number % base
+                number = number // base
+                arr.append(alphabet[rem])
+            
+            arr.reverse()
+            return 'success',''.join(arr)
+
+        except Exception,ex:
+            return 'error',str(ex)
+
+    def base62_decode(self, nstr, alphabet=base62_alphabet):
+        '''
+            Decode a Base X encoded string into the number
+        '''
+        try:
+
+            base = len(alphabet)
+            strlen = len(nstr)
+            num = 0
+
+            idx = 0
+            for char in nstr:
+                power = (strlen - (idx + 1))
+                num += alphabet.index(char) * (base ** power)
+                idx += 1
+
+            return "success",num
+
+
+        except Exception,ex:
+            return 'error',str(ex)

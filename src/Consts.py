@@ -13,7 +13,9 @@ class Consts:
     guild_status_delete = "delete"
 
 
-
+    # for license status
+    license_active = "active"
+    license_used   = "used"
 
 
 
