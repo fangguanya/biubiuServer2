@@ -126,6 +126,13 @@ class Server:
             root_path = "%s/../images/agency" %(self.dir_path)
             return bottle.static_file(filename, root=root_path)
 
+        @bottle.route('/images/agencys/:filename')
+        def send_image_agencys(filename=None):
+            # FIXME: the param 'root' should be define in other place, now just for test.
+            root_path = "%s/../images/agencys" %(self.dir_path)
+            return bottle.static_file(filename, root=root_path)
+
+
         #################
         #API
         #################
