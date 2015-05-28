@@ -1,0 +1,130 @@
+[
+  {
+    "match_id": 1,
+    "match_name": "OpenTestMatch",
+    "match_type": 0,
+    "match_question_url": "http://115.28.202.165/match/matchId_1_0_0_3.json",
+    "match_star_day": 520,
+    "match_star_time": 0,
+    "match_end_day": 530,
+    "match_end_time": 2000,
+    "match_tips": "This match is opened only for test",
+    "match_state": 1,
+    "match_bg": "namebrandmatch_bg.png",
+    "match_icon": "namebrandmatch_OpenTestMatch.png",
+    "match_reward": [
+      {
+        "name": "第1名",
+        "rewardId": 1,
+        "rewardNum": 1,
+        "rewardType": 0,
+        "value": 1,
+        "desc": "在比赛中获得第一名"
+      },
+      {
+        "name": "前5名",
+        "rewardId": 2,
+        "rewardNum": 1,
+        "rewardType": 0,
+        "value": 5,
+        "desc": "在比赛中打进前五名"
+      },
+      {
+        "name": "前10名",
+        "rewardId": 3,
+        "rewardNum": 1,
+        "rewardType": 0,
+        "value": 10,
+        "desc": "在比赛中打进前10名"
+      },
+      {
+        "name": "突破100金币",
+        "rewardId": 0,
+        "rewardNum": 100,
+        "rewardType": 1,
+        "value": 100,
+        "desc": "在比赛中累计获得100枚金币,奖励100枚金币"
+      },
+      {
+        "name": "突破200金币",
+        "rewardId": 0,
+        "rewardNum": 150,
+        "rewardType": 1,
+        "value": 200,
+        "desc": "在比赛中累计获得200枚金币,奖励150枚金币"
+      },
+      {
+        "name": "完成奖励",
+        "rewardId": 0,
+        "rewardNum": 50,
+        "rewardType": 2,
+        "value": 0,
+        "desc": "完成一次游戏,奖励50枚金币"
+      }
+    ]
+  },
+  {
+    "match_id": 2,
+    "match_name": "TestMatch",
+    "match_type": 11,
+    "match_question_url": "http://115.28.202.165/match/matchId_2_0_0_2.json",
+    "match_star_day": 601,
+    "match_star_time": 0,
+    "match_end_day": 604,
+    "match_end_time": 2000,
+    "match_tips": "This match is closed only for test",
+    "match_state": 2,
+    "match_bg": "namebrandmatch_bg.png",
+    "match_icon": "namebrandmatch_CloseTestMatch.png",
+    "match_reward": [
+      {
+        "name": "第1名",
+        "rewardId": 1,
+        "rewardNum": 1,
+        "rewardType": 0,
+        "value": 1,
+        "desc": "在比赛中获得第一名"
+      },
+      {
+        "name": "前5名",
+        "rewardId": 2,
+        "rewardNum": 1,
+        "rewardType": 0,
+        "value": 5,
+        "desc": "在比赛中打进前五名"
+      },
+      {
+        "name": "前10名",
+        "rewardId": 3,
+        "rewardNum": 1,
+        "rewardType": 0,
+        "value": 10,
+        "desc": "在比赛中打进前10名"
+      },
+      {
+        "name": "突破100金币",
+        "rewardId": 0,
+        "rewardNum": 100,
+        "rewardType": 1,
+        "value": 100,
+        "desc": "在比赛中累计获得100枚金币,奖励100枚金币"
+      },
+      {
+        "name": "突破200金币",
+        "rewardId": 0,
+        "rewardNum": 150,
+        "rewardType": 1,
+        "value": 200,
+        "desc": "在比赛中累计获得200枚金币,奖励150枚金币"
+      },
+      {
+        "name": "完成奖励",
+        "rewardId": 0,
+        "rewardNum": 50,
+        "rewardType": 2,
+        "value": 0,
+        "desc": "完成一次游戏,奖励50枚金币"
+      }
+    ]
+  }
+]
