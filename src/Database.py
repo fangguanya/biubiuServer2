@@ -133,7 +133,7 @@ class Database:
 
 
             
-            sql = "select guild2.id,guild2.name,guild2.head,level,guild2.limit,guild2.number,createrOpenID from guild2 where status!='delete' order by exp desc limit %s,%s;" %(offset, number)
+            sql = "select guild2.id,guild2.name,guild2.head,level,guild2.limit,guild2.number,createrOpenID,exp from guild2 where status!='delete' order by exp desc limit %s,%s;" %(offset, number)
             #Factory.logger.debug("[sql]%s" %(sql));
             print "sql: %s." %(sql)
             conn.execute(sql);
@@ -149,6 +149,7 @@ class Database:
                 result_one['people_limits'] = row[4]
                 result_one['people_number'] = row[5]
                 result_one['createrOpenID'] = row[6]
+                result_one['exp'] = row[7]
 
                 result_one['if_in_guild'] = 0
                 result.append(result_one)
@@ -348,6 +349,56 @@ class Database:
                 conn.close();
 
             return "error",str(ex),result
+
+
+    def db_get_player_by_id(self, playerid):
+        '''
+            get the player info by openid.
+        '''
+        try:
+            result = []
+            conn = None;
+            ret, db = self.__connect_to_db();
+            ret,conn = self.__create_connection(db);
+
+            # insert project
+            sql = "select id, account, guildID, name, headurl, level, gold, exp, gem, prop from player where player.id='%s';"  %(playerid)
+            #Factory.logger.debug("[sql]%s" %(sql));
+            print "sql: %s." %(sql)
+            conn.execute(sql);
+
+            dataset = conn.fetchall();
+
+            for row in dataset:
+                result_one = {}
+                result_one['id']      = row[0]
+                result_one['account'] = row[1]
+                result_one['guildID'] = row[2]
+                result_one['name']    = row[3]
+                result_one['head']    = row[4]
+                result_one['level']   = row[5]
+
+                result_one['gold']   = row[6]
+                result_one['exp']    = row[7]
+                result_one['gem']    = row[8]
+                result_one['prop']   = json.loads(row[9])
+
+
+
+                #print result_one
+                result.append(result_one)
+
+            if conn is not None:
+                conn.close(); 
+            
+            return "success","ok",result;
+
+        except Exception,ex:
+            if conn is not None:
+                conn.close();
+
+            return "error",str(ex),result
+
 
 
     def db_update_player_info(self, params):
@@ -893,3 +944,5 @@ class Database:
                 conn.close();
 
             return "error",str(ex),result
+
+

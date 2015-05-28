@@ -1561,7 +1561,8 @@ class Server:
                     return "%s" %(json.dumps(response)) 
 
                 self.logger.debug('Get ranklist firsts player info: %s.' %(json.dumps(firsts_player_info)))
-                response['first'] = firsts_player_info
+
+
 
                 # get the player ranking
                 ret,msg,player_ranking_info = self.database.db_get_ranking_number(index, player_info[0]['id'])
@@ -1583,7 +1584,42 @@ class Server:
                         ranklist_offset = player_ranking_info[0]['number']-5
 
 
+                response['first'] = []
+                member_cnt = 0
+                for firsts_player_info_one in firsts_player_info:
+                    # get player info
+                    ranklist_member_one = {}
+                    
+                    ret,msg,member_info = self.database.db_get_player_by_id(firsts_player_info_one['playerID'])
+                    if ret == 'success' and len(member_info) > 0:
+                        ranklist_member_one['name'] = member_info[0]['name']
+                        ranklist_member_one['head'] = member_info[0]['head']
+                        ranklist_member_one['guild_id'] = member_info[0]['guildID']
+                    else:
+                        ranklist_member_one['name'] = ""
+                        ranklist_member_one['head'] = ""
+                        ranklist_member_one['guild_id'] = 0
 
+                    if member_info[0]['account'] == player:
+                        ranklist_member_one['isplayer'] = 1
+                    else:
+                        ranklist_member_one['isplayer'] = 0
+
+                    member_cnt += 1
+                    ranklist_member_one['ranking'] = member_cnt
+
+                    # get guild info
+                    if ranklist_member_one['guild_id'] > 0:
+                        ret, msg, member_guild_info = self.database.db_get_guild_by_guildID(ranklist_member_one['guild_id'])
+                        if ret == 'success' and len(member_guild_info) > 0:
+                            ranklist_member_one['guild_name'] = member_guild_info[0]['guild_name']
+                            ranklist_member_one['guild_head'] = member_guild_info[0]['head']
+
+                    else:
+                        ranklist_member_one['guild_name'] = ""
+                        ranklist_member_one['guild_head'] = ""
+
+                    response['first'].append(ranklist_member_one)
 
                 # get the members around the player ,  if the player not active, just get the first members
                 ret,msg,around_player_info = self.database.db_get_ranklist_range(index, ranklist_offset, ranklist_number)
@@ -1598,7 +1634,41 @@ class Server:
                     return "%s" %(json.dumps(response)) 
 
                 self.logger.debug('Get ranklist firsts player info: %s.' %(json.dumps(around_player_info)))
-                response['ranklist'] = around_player_info
+                response['ranklist'] = []
+                member_cnt = ranklist_offset
+                for around_player_info_one in around_player_info:
+                    # get player info
+                    ranklist_member_one = {}
+                    ret,msg,member_info = self.database.db_get_player_by_id(around_player_info_one['playerID'])
+                    if ret == 'success' and len(member_info) > 0:
+                        ranklist_member_one['name'] = member_info[0]['name']
+                        ranklist_member_one['head'] = member_info[0]['head']
+                        ranklist_member_one['guild_id'] = member_info[0]['guildID']
+                    else:
+                        ranklist_member_one['name'] = ""
+                        ranklist_member_one['head'] = ""
+                        ranklist_member_one['guild_id'] = 0
+
+                    if member_info[0]['account'] == player:
+                        ranklist_member_one['isplayer'] = 1
+                    else:
+                        ranklist_member_one['isplayer'] = 0
+
+                    member_cnt += 1
+                    ranklist_member_one['ranking'] = member_cnt
+
+                    # get guild info
+                    if ranklist_member_one['guild_id'] > 0:
+                        ret, msg, member_guild_info = self.database.db_get_guild_by_guildID(ranklist_member_one['guild_id'])
+                        if ret == 'success' and len(member_guild_info) > 0:
+                            ranklist_member_one['guild_name'] = member_guild_info[0]['guild_name']
+                            ranklist_member_one['guild_head'] = member_guild_info[0]['head']
+
+                    else:
+                        ranklist_member_one['guild_name'] = ""
+                        ranklist_member_one['guild_head'] = ""
+
+                    response['ranklist'].append(ranklist_member_one)
 
 
                 

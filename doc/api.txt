@@ -265,5 +265,9 @@ index: 赛事ID
 
 }
 
+SELECT player.id,player.name, player.headurl, player.guildId, guild2.name, guild2.head FROM player, guild2 WHERE player.guildId=guild2.id and player.id=147;
 
 select player.name,playerNamebrand.count from player left join playerNamebrand  on (player.id = playerNamebrand.playerId) order by playerNamebrand.count;
+
+
+
