@@ -1531,6 +1531,8 @@ class Server:
                 post_data_json['player'] = player
                 post_data_json['index']  = index
 
+                response['index'] = index
+
                 # get the player info , if not get player info ,just get by index
                 ret,msg,player_info = self.database.db_get_player_by_openid(post_data_json['player'])
                 if ret != 'success':
@@ -1546,8 +1548,8 @@ class Server:
                 self.logger.debug('Get player info: %s.' %(json.dumps(player_info)))
 
 
-                # get the firsts
-                ret,msg,firsts_player_info = self.database.db_get_ranklist_top(index, 3)
+                # get the first 3
+                ret,msg,firsts_player_info = self.database.db_get_ranklist_range(index, 0,3)
                 if ret != 'success':
                     response['result'] = 'error'
                     response['message'] = 'get player error:%s.' %(msg)
@@ -1559,9 +1561,44 @@ class Server:
                     return "%s" %(json.dumps(response)) 
 
                 self.logger.debug('Get ranklist firsts player info: %s.' %(json.dumps(firsts_player_info)))
+                response['first'] = firsts_player_info
+
+                # get the player ranking
+                ret,msg,player_ranking_info = self.database.db_get_ranking_number(index, player_info[0]['id'])
+                if ret != 'success':
+                    response['result'] = 'error'
+                    response['message'] = 'get ranking error:%s.' %(msg)
+                    return "%s" %(json.dumps(response)) 
+                else:
+                    self.logger.debug('Get player ranking info, ret:%s, info: %s.' %(ret, json.dumps(player_ranking_info)))
+
+                ranklist_offset = 0
+                ranklist_number = 11
+
+                if len(player_ranking_info) < 1:
+                    self.logger.debug( 'there is no id:%s in ranklist:%s.' %(player_info[0]['id'], index))
+                else:
+                    self.logger.debug('ranking info: %s.' %(json.dumps(player_ranking_info)))
+                    if player_ranking_info[0]['number'] >= 5:
+                        ranklist_offset = player_ranking_info[0]['number']-5
+
+
+
 
                 # get the members around the player ,  if the player not active, just get the first members
+                ret,msg,around_player_info = self.database.db_get_ranklist_range(index, ranklist_offset, ranklist_number)
+                if ret != 'success':
+                    response['result'] = 'error'
+                    response['message'] = 'get player error:%s.' %(msg)
+                    return "%s" %(json.dumps(response)) 
 
+                if len(around_player_info) < 1:
+                    response['result'] = 'error'
+                    response['message'] = 'there is no index:%s.' %(index)
+                    return "%s" %(json.dumps(response)) 
+
+                self.logger.debug('Get ranklist firsts player info: %s.' %(json.dumps(around_player_info)))
+                response['ranklist'] = around_player_info
 
 
                 
