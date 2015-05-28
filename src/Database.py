@@ -775,3 +775,43 @@ class Database:
 
 
 
+    def db_get_ranklist_top(self, index, number):
+        '''
+            get the ranklist.
+        '''
+        try:
+            result = []
+            conn = None;
+            ret, db = self.__connect_to_db();
+            ret,conn = self.__create_connection(db);
+
+            # insert project
+            sql = "select playerID, playerNamebrand.index, playerNamebrand.count from playerNamebrand where playerNamebrand.index=%s order by playerNamebrand.count desc limit 0,%s;"  %(index,number)
+            #Factory.logger.debug("[sql]%s" %(sql));
+            print "sql: %s." %(sql)
+            conn.execute(sql);
+
+            dataset = conn.fetchall();
+
+            for row in dataset:
+                result_one = {}
+                result_one['playerID'] = row[0]
+                result_one['index'] = row[1]
+                result_one['count'] = row[2]
+
+
+                #print result_one
+                result.append(result_one)
+
+            if conn is not None:
+                conn.close(); 
+            
+            return "success","ok",result;
+
+        except Exception,ex:
+            if conn is not None:
+                conn.close();
+
+            return "error",str(ex),result
+
+

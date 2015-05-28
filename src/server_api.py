@@ -132,6 +132,12 @@ class Server:
             root_path = "%s/../images/agencys" %(self.dir_path)
             return bottle.static_file(filename, root=root_path)
 
+        @bottle.route('/configs/:filename')
+        def send_files(filename=None):
+            # FIXME: the param 'root' should be define in other place, now just for test.
+            root_path = "%s/../files" %(self.dir_path)
+            return bottle.static_file(filename, root=root_path)
+
 
         #################
         #API
@@ -1498,6 +1504,75 @@ class Server:
                 response['message'] = '%s' %(str(ex))
                 return "%s" %(json.dumps(response)) 
 
+
+        @bottle.route('/api/ranklist/:player/:index')
+        def api_get_ranklist(player=None,index=None):
+            response = {}
+            response['result']  = 'error'
+
+            guild_id = None
+            try:
+                self.logger.debug('handle a request: /api/ranklist/:player/:index')   
+                self.logger.debug('player:%s, type:%s, index:%s, type:%s.' %(player,type(player), index, type(index)))   
+                # check the params
+                if player == None:
+                    response['result'] = 'error'
+                    response['message'] = 'params player is None.'
+                    return "%s" %(json.dumps(response))
+
+                if index == None:
+                    response['result'] = 'error'
+                    response['message'] = 'params index error.'
+                    return "%s" %(json.dumps(response))   
+
+
+
+                post_data_json = {}
+                post_data_json['player'] = player
+                post_data_json['index']  = index
+
+                # get the player info , if not get player info ,just get by index
+                ret,msg,player_info = self.database.db_get_player_by_openid(post_data_json['player'])
+                if ret != 'success':
+                    response['result'] = 'error'
+                    response['message'] = 'get player error:%s.' %(msg)
+                    return "%s" %(json.dumps(response)) 
+
+                if len(player_info) < 1:
+                    response['result'] = 'error'
+                    response['message'] = 'there is no player for id:%s.' %(post_data_json['player'])
+                    return "%s" %(json.dumps(response)) 
+
+                self.logger.debug('Get player info: %s.' %(json.dumps(player_info)))
+
+
+                # get the firsts
+                ret,msg,firsts_player_info = self.database.db_get_ranklist_top(index, 3)
+                if ret != 'success':
+                    response['result'] = 'error'
+                    response['message'] = 'get player error:%s.' %(msg)
+                    return "%s" %(json.dumps(response)) 
+
+                if len(firsts_player_info) < 1:
+                    response['result'] = 'error'
+                    response['message'] = 'there is no index:%s.' %(index)
+                    return "%s" %(json.dumps(response)) 
+
+                self.logger.debug('Get ranklist firsts player info: %s.' %(json.dumps(firsts_player_info)))
+
+                # get the members around the player ,  if the player not active, just get the first members
+
+
+
+                
+                response['result'] = "success"
+                return "%s" %(json.dumps(response)) 
+
+            except Exception,ex:
+                response = {}
+                response['result'] = 'error'
+                response['message'] = '%s' %(str(ex))
+                return "%s" %(json.dumps(response)) 
 
 
 

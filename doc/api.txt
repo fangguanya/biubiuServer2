@@ -194,6 +194,8 @@
 
 
 
+
+
 ===================
     经济相关API
 ===================
@@ -219,3 +221,49 @@
 1. 对于经验的增加，学团目前不支持经验增加的方法，学团的经验是随学团成员的经验增加而增加
 2. exp表示经验值，理论上只能增加
 
+
+
+
+===================
+    排行榜API
+===================
+1. 获取排行榜
+[GET] http://ip/api/ranklist/{openid}/{index}
+
+字段说明：
+openid：用户的openid
+index: 赛事ID
+
+返回值：
+{
+    "result": "success",                    #操作是否成功，"success" or "error"
+    "index": 99999,                         #赛事索引
+
+    "first":[                               #前三名信息
+        {
+            "name":"xxx",                   #player名称
+            "head":"xxx",                   #player头像路径
+            "guild_id": 20,                 #player所属学团，0表示没有学团
+            "guild_name": "xxx",            #学团名称
+            "guild_head": "xxx",            #学团头像路径
+            "ranking":1,                    #排名
+            "isplayer":0                    #是否是当前调用者
+        },{}   
+    ],
+
+    "ranklist": [                           #排行榜信息，返回调用者周围11人信息
+        {
+            "name":"xxx",
+            "head":"xxx",
+            "guild_id": 20,
+            "guild_name": "xxx",
+            "guild_head": "xxx",
+            "ranking":1,
+            "isplayer":0 
+        },{}
+    ]
+
+}
+
+
+select player.name,playerNamebrand.count from player left join playerNamebrand  on (player.id = playerNamebrand.playerId) order by playerNamebrand.count;
