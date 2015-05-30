@@ -247,6 +247,7 @@ index: 赛事ID
             "guild_name": "xxx",            #学团名称
             "guild_head": "xxx",            #学团头像路径
             "ranking":1,                    #排名
+            "count": 23,                    #积分（名牌数）
             "isplayer":0                    #是否是当前调用者
         },{}   
     ],
@@ -259,6 +260,7 @@ index: 赛事ID
             "guild_name": "xxx",
             "guild_head": "xxx",
             "ranking":1,
+            "count":22,
             "isplayer":0 
         },{}
     ]
