@@ -8,6 +8,7 @@ class Utility:
     ''' class utility '''
     base62_alphabet = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
     base64_alphabet = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-/'
+    base56_alphabet = '23456789abcdefghijkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ'
 
 
     def __init__(self):
@@ -97,6 +98,34 @@ class Utility:
 
             return "success",num
 
+
+        except Exception,ex:
+            return 'error',str(ex)
+
+    def base56_encode(self, number, alphabet=base56_alphabet):
+        '''
+            Default: encode a number in base 56. user can define alphabet for base x.
+            'num': The number to encode
+            'alphabet': The alphabet to use for encoding
+        '''
+        try:
+
+            # the number must 'int'
+            if not isinstance( number, int):
+                return "error","number must int."
+
+            if  number == 0:
+                return 'success', '0'
+
+            arr = []
+            base = len(alphabet)
+            while number:
+                rem = number % base
+                number = number // base
+                arr.append(alphabet[rem])
+            
+            arr.reverse()
+            return 'success',''.join(arr)
 
         except Exception,ex:
             return 'error',str(ex)
