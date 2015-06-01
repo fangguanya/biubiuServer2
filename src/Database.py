@@ -144,7 +144,7 @@ class Database:
                 result_one = {}
                 result_one['guild_id'] = row[0]
                 result_one['guild_name'] = row[1]
-
+                result_one['head'] = row[2]
                 result_one['level'] = row[3]
                 result_one['people_limits'] = row[4]
                 result_one['people_number'] = row[5]

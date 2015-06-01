@@ -26,7 +26,7 @@
     "player" : "PLAYER_ID",
     "license": "LICENSE_CODE",
     "name" : "NAME",
-    "logo" : "xxx"                  
+    "logo" : "xxx"                  #学团logo，暂不支持             
 }
 返回值：
 {
@@ -67,6 +67,7 @@
         {
             "guild_id" : 92,  
             "guild_name" : "xxxx",
+            "head" : "xxx",                  #学团头像
             "people_number" : 12,
             "people_limits": 25,
             "if_in_guild" : "yes" ,          # 返回值"yes"或"no"，表示是否在该学团中
