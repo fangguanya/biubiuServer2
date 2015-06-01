@@ -928,7 +928,7 @@ class Database:
                 result_one = {}
                 result_one['id'] = row[0]
                 result_one['playerID'] = row[1]
-                result_one['number'] = row[2]
+                result_one['number'] = int(row[2])
 
 
                 #print result_one
