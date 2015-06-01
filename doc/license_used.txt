@@ -1,0 +1,34 @@
+
+====== 机构 ======
+
+图片名称                        机构名称                license           是否使用      使用者
+
+1_huizhijiaoyu.png              慧智教育                3pcaTY
+                                                        3pckdv
+                                                        3pcokD
+                                                        3pcvqE
+
+2_zhonghejiaoyu.png             众和教育                3pcHXB
+                                                        3pcMky
+                                                        3pcT73
+                                                        3pcVG5  
+
+3_kuangaojiaoyu.png             宽高教育                3pd7CA
+                                                        3pdbDj
+                                                        3pdfse
+                                                        3pdiN0
+
+4_youyou1v1.png                 优优一对一              3pdu7s
+                                                        3pdz6Y
+                                                        3pdBKR
+                                                        3pdDD8
+
+
+
+====== 普通 ======
+
+图片名称                        机构名称                license           是否使用 
+0_nxxt.png                      逆袭学团                3pbehG
+                                                        3pbln1
+                                                        3pbqio
+
