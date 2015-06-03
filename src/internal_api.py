@@ -115,7 +115,8 @@ class InternalServer:
                 now = int(now)
                 self.logger.debug('[api_create_license] base value:%s.' %(now))
 
-                ret, code62 = self.utility.base62_encode(now)
+                #ret, code62 = self.utility.base62_encode(now)
+                ret, code62 = self.utility.base56_encode(now)
                 if ret != 'success':
                     response['result'] = 'error'
                     response['message'] = 'create license error:%s.' %(code62)
