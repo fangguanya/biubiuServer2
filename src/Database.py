@@ -557,7 +557,7 @@ class Database:
             ret, db = self.__connect_to_db();
             ret,conn = self.__create_connection(db);
 
-            sql = "select playerOpenID, exp from guildMember2 where guildID=%s and status='%s';"  %(guildID, Consts.guildMember_status_active)
+            sql = "select playerOpenID, exp from guildMember2 where guildID=%s and status='%s' order by exp desc;"  %(guildID, Consts.guildMember_status_active)
             
             print "sql: %s." %(sql)
             conn.execute(sql);
