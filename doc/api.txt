@@ -274,3 +274,50 @@ select player.name,playerNamebrand.count from player left join playerNamebrand  
 
 
 
+===================
+    用户信息API
+===================
+1. 获取用户信息
+[GET] http://ip/api/info/player/{openid} 
+
+字段说明：
+openid：用户的openid
+
+返回值：
+{
+    "result" : "success",
+    "player": {
+        "name":"xxx",                   #player名称
+        "head":"xxx",                   #player头像路径
+        "guildID": 20,                  #player所属学团，0表示没有学团
+ 
+
+        "gold": 94,                     #金币数
+        "level": 0,                     #等级
+
+        "exp": 358,                     #经验
+        "prop": {                       #道具信息
+            "delay": 0,                 #延时道具数量
+            "glass": 0,                 #放大镜数量
+            "bomb": 0,                  #炸弹数量
+            "point": 0                  #提示道具数量
+        },
+        "id": 158,                      #用户ID(BiuBiu ID)
+        "gem": 0,                       #宝石数量
+        "inviter": 121003               #邀请人ID
+    }   
+}
+
+
+2. 更改用户信息
+
+
+3. 邀请码操作
+[POST] http://ip/
+
+
+
+4. 查询邀请情况
+
+
+

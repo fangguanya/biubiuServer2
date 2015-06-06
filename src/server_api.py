@@ -1683,6 +1683,49 @@ class Server:
                 response['message'] = '%s' %(str(ex))
                 return "%s" %(json.dumps(response)) 
 
+        @bottle.route('/api/info/player/:playerid')
+        def api_get_player_detal_info(playerid=None):
+            response = {}
+            response['result']  = 'error'
+
+            try:
+                self.logger.debug('handle a request: /api/info/player/:playerid')   
+                self.logger.debug('playerid:%s, type:%s.' %(playerid,type(playerid)))   
+                # check the params
+                if playerid == None:
+                    response['result'] = 'error'
+                    response['message'] = 'params playerid is None.'
+                    return "%s" %(json.dumps(response))
+
+
+                post_data_json = {}
+                post_data_json['player'] = playerid
+
+                # get the player info , if not get player info ,just get by index
+                ret,msg,player_info = self.database.db_get_player_by_openid(post_data_json['player'])
+                if ret != 'success':
+                    response['result'] = 'error'
+                    response['message'] = 'get player error:%s.' %(msg)
+                    return "%s" %(json.dumps(response)) 
+
+                if len(player_info) < 1:
+                    response['result'] = 'error'
+                    response['message'] = 'there is no player for id:%s.' %(post_data_json['player'])
+                    return "%s" %(json.dumps(response)) 
+
+                self.logger.debug('Get player info: %s.' %(json.dumps(player_info)))
+
+                response['player'] = player_info[0]
+                response['result'] = "success"
+                return "%s" %(json.dumps(response)) 
+
+            except Exception,ex:
+                response = {}
+                response['result'] = 'error'
+                response['message'] = '%s' %(str(ex))
+                return "%s" %(json.dumps(response)) 
+
+
 
 
 
