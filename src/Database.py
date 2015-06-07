@@ -313,7 +313,7 @@ class Database:
             ret,conn = self.__create_connection(db);
 
             # insert project
-            sql = "select id, account, guildID, name, headurl, level, gold, exp, gem, prop from player where player.account='%s';"  %(openid)
+            sql = "select id, account, guildID, name, headurl, level, gold, exp, gem, prop, inviter from player where player.account='%s';"  %(openid)
             #Factory.logger.debug("[sql]%s" %(sql));
             print "sql: %s." %(sql)
             conn.execute(sql);
@@ -333,7 +333,7 @@ class Database:
                 result_one['exp']    = row[7]
                 result_one['gem']    = row[8]
                 result_one['prop']   = json.loads(row[9])
-
+                result_one['inviter']    = row[10]    
 
 
                 #print result_one
@@ -362,7 +362,7 @@ class Database:
             ret,conn = self.__create_connection(db);
 
             # insert project
-            sql = "select id, account, guildID, name, headurl, level, gold, exp, gem, prop from player where player.id='%s';"  %(playerid)
+            sql = "select id, account, guildID, name, headurl, level, gold, exp, gem, prop, inviter from player where player.id='%s';"  %(playerid)
             #Factory.logger.debug("[sql]%s" %(sql));
             print "sql: %s." %(sql)
             conn.execute(sql);
@@ -382,7 +382,7 @@ class Database:
                 result_one['exp']    = row[7]
                 result_one['gem']    = row[8]
                 result_one['prop']   = json.loads(row[9])
-
+                result_one['inviter']    = row[10]  
 
 
                 #print result_one
@@ -431,7 +431,8 @@ class Database:
             if  params.has_key('gem'):
                 update_cmd = "%s gem=%s," %(update_cmd, params['gem'])
 
-
+            if  params.has_key('inviter'):
+                update_cmd = "%s inviter=%s," %(update_cmd, params['inviter'])
 
             if  len(update_cmd) > 0:
                 sql = "%s %s where account='%s';" %(sql, update_cmd[:-1], params['player_openid'])

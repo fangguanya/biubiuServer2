@@ -313,11 +313,26 @@ openid：用户的openid
 
 
 3. 邀请码操作
-[POST] http://ip/
-
+说明：用户使用其他用户分享的邀请码（即其他用户的ID），可以获得一次经济奖励。
+在player表中增加字段"inviter"，用来表示该用户的邀请人（该字段用ID表示）
+[POST] http://ip/api/add/inviter
+{
+    "inviter": 123456,                 #邀请人的ID
+    "player" : "xxx",                  #被邀请人的openid
+}
+返回值：
+{
+    "result":"success"
+}
 
 
 4. 查询邀请情况
-
+说明：该API用来获取用户本人已邀请的用户数量
+[GET] http://ip/api/number/inviter/{openid}
+返回值：
+{
+    "result":"success",
+    "number":20
+}
 
 

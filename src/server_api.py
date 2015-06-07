@@ -1727,6 +1727,80 @@ class Server:
 
 
 
+        @bottle.route('/api/add/inviter', method="POST")
+        def api_add_inviter():
+            response = {}
+            response['result'] = 'error'
+
+            try:
+                self.logger.debug('handle a request:/api/add/inviter')   
+                # get the data
+                post_data = bottle.request.body.getvalue()
+                self.logger.debug('handle the request data: %s' %(post_data))
+
+                '''
+                    post data format:
+                    {
+                        "inviter": 123456,
+                        "player" : "xxx"
+                    }
+
+                '''
+                post_data_json = json.loads(post_data)
+
+                # check must key
+                if not post_data_json.has_key('player'):
+                    response['result'] = 'error'
+                    response['message'] = 'need param: player.'
+                    return "%s" %(json.dumps(response)) 
+
+                if not post_data_json.has_key('inviter'):
+                    response['result'] = 'error'
+                    response['message'] = 'need param: inviter.'
+                    return "%s" %(json.dumps(response)) 
+
+                self.logger.debug('get player info') 
+                # get the player info
+                ret,msg,player_info = self.database.db_get_player_by_openid(post_data_json['player'])
+                if ret != 'success':
+                    response['result'] = 'error'
+                    response['message'] = 'get player error:%s.' %(msg)
+                    return "%s" %(json.dumps(response)) 
+
+                if len(player_info) < 1:
+                    response['result'] = 'error'
+                    response['message'] = 'there is no player for id:%s.' %(post_data_json['player'])
+                    return "%s" %(json.dumps(response)) 
+
+                else:
+                    self.logger.debug('Get player info: %s.' %(json.dumps(player_info)))
+
+                    # if the player has not been invited, add the inviter
+                    if player_info[0]['inviter'] == 0:
+                        update_player_params = {}
+                        update_player_params['player_openid'] = post_data_json['player']
+                        update_player_params['inviter'] = post_data_json['inviter']
+
+                        ret,msg = self.database.db_update_player_info(update_player_params)
+                        if ret != 'success':
+                            response['result'] = 'error'
+                            response['message'] = 'update the player info error:%s.' %(msg)
+                            return "%s" %(json.dumps(response))           
+                    else:
+                        response['result'] = 'error'
+                        response['message'] = 'the player has been invited by player:%s.' %(player_info[0]['inviter'])
+                        return "%s" %(json.dumps(response)) 
+
+
+                response['result'] = 'success'
+                return "%s" %(json.dumps(response))
+
+            except Exception,ex:
+                response = {}
+                response['result'] = 'error'
+                response['message'] = '%s' %(str(ex))
+                return "%s" %(json.dumps(response)) 
+
 
 
 
