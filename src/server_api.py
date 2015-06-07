@@ -1802,6 +1802,41 @@ class Server:
                 return "%s" %(json.dumps(response)) 
 
 
+        @bottle.route('/api/number/inviter/:playerid')
+        def api_get_number_of_inviters(playerid=None):
+            response = {}
+            response['result']  = 'error'
+
+            try:
+                self.logger.debug('handle a request: /api/number/inviter/:playerid')   
+                self.logger.debug('playerid:%s, type:%s.' %(playerid,type(playerid)))   
+                # check the params
+                if playerid == None:
+                    response['result'] = 'error'
+                    response['message'] = 'params playerid is None.'
+                    return "%s" %(json.dumps(response))
+
+
+                post_data_json = {}
+                post_data_json['player'] = playerid
+
+                # get the player info , if not get player info ,just get by index
+                ret,msg,number = self.database.db_get_number_of_inviters(post_data_json['player'])
+                if ret != 'success':
+                    response['result'] = 'error'
+                    response['message'] = 'get player error:%s.' %(msg)
+                    return "%s" %(json.dumps(response)) 
+
+                response['number'] = number
+                response['result'] = "success"
+                return "%s" %(json.dumps(response)) 
+
+            except Exception,ex:
+                response = {}
+                response['result'] = 'error'
+                response['message'] = '%s' %(str(ex))
+                return "%s" %(json.dumps(response)) 
+
 
 
     def run(self):
