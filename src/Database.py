@@ -302,6 +302,52 @@ class Database:
 
             return "error",str(ex)    
 
+    def db_add_player(self, params):
+        '''
+            add the player, and return the player id.
+        '''
+        conn = None
+        try:
+            # check the params
+            '''
+            {
+                "openid"   : "OPENID",
+                "openkey"  : "OPEN_KEY",
+                "name"     : "The player name(nickname)",
+                "head_url" : "http://ip/the_player_head_url"
+            }
+            '''
+
+            ret, db = self.__connect_to_db();
+            ret,conn = self.__create_connection(db);
+
+            sql = "insert into player(account, name, headurl, login) values ('%s','%s','%s','%s','%s');" \
+                %self.__escape_tuple(params['openid'],params['name'].encode('utf-8'),params['head_url'], datetime.now());
+
+            print "sql: %s." %(sql)
+            conn.execute(sql);
+
+            # get the project id.
+            conn.execute("select @@identity;");
+            source_id_ret = conn.fetchone();
+            if source_id_ret is None or len(source_id_ret) < 1:
+                msg = "add player failed!"
+                print msg
+                return "error",msg, None
+        
+            db.commit();
+            
+            player_id = source_id_ret[0];
+
+            return "success","ok",player_id;
+
+        except Exception,ex:
+            if conn is not None:
+                conn.close();
+
+            return "error",str(ex),None
+
+
     def db_get_player_by_openid(self, openid):
         '''
             get the player info by openid.

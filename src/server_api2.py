@@ -274,7 +274,7 @@ class Server:
         def api2_qq_login():
             response = {}
             response['result'] = 'error'
-            response['logo_url'] = ''
+            response['code']   = Code.ERROR_CODE_OK
 
             try:
                 self.logger.debug('handle a request: /api2/qq/login, ')
@@ -294,11 +294,72 @@ class Server:
 
 
                 # check the must params
+                if not post_data_json.has_key('openid'):
+                    response['result'] = 'error'
+                    response['code']   = Code.ERROR_CODE_NEED_MUST_PARAMS
+                    response['message'] = 'need param openid.'
+                    return "%s" %(json.dumps(response))  
+
+                if not post_data_json.has_key('openkey'):
+                    response['result'] = 'error'
+                    response['code']   = Code.ERROR_CODE_NEED_MUST_PARAMS
+                    response['message'] = 'need param openkey.'
+                    return "%s" %(json.dumps(response))  
+
+                if not post_data_json.has_key('name'):
+                    response['result'] = 'error'
+                    response['code']   = Code.ERROR_CODE_NEED_MUST_PARAMS
+                    response['message'] = 'need param name.'
+                    return "%s" %(json.dumps(response))  
+
+                if not post_data_json.has_key('head_url'):
+                    response['result'] = 'error'
+                    response['code']   = Code.ERROR_CODE_NEED_MUST_PARAMS
+                    response['message'] = 'need param head_url.'
+                    return "%s" %(json.dumps(response))  
 
 
-                # just for test
-                response['result'] = 'success'
+                # check the openid, if player not exist, add new player. 
+                ret,msg,player_info = self.database.db_get_player_by_openid(post_data_json['openid'])
+                if ret != 'success':
+                    response['result'] = 'error'
+                    response['code']   = Code.ERROR_CODE_DATABASE
+                    response['message'] = 'get player error:%s.' %(msg)
+                    return "%s" %(json.dumps(response)) 
 
+                if len(player_info) < 1:
+                    player_params = {}
+                    player_params['openid'] = post_data_json['openid']
+                    player_params['openkey'] = post_data_json['openkey']
+                    player_params['name'] = post_data_json['name']
+                    player_params['head_url'] = post_data_json['head_url']
+
+                    # there is no plyaer, add new player
+                    ret,msg,player_id = self.database.db_add_player(player_params)
+                    if ret != 'success':
+                        response['result'] = 'error'
+                        response['code']   = Code.ERROR_CODE_DATABASE
+                        response['message'] = 'Add player:%s error:%s.' %(post_data_json['openid'],msg)
+                        return "%s" %(json.dumps(response)) 
+
+                # generate token
+                now = time.time()
+                now *= 1000000
+                now = int(now)
+                self.logger.debug('[api_create_license] base value:%s.' %(now))
+                ret, code62 = self.utility.base62_encode(now)
+                if ret != 'success':
+                    response['result'] = 'error'
+                    response['code']   = Code.ERROR_CODE_CREATE_TOKEN
+                    response['message'] = 'create token error:%s.' %(code62)
+                    return "%s" %(json.dumps(response)) 
+                else:
+                    self.logger.debug('token:%s.' %(code62))
+
+                response['result']  = 'success'
+                response['id']      = player_id
+                response['code']    = Code.ERROR_CODE_OK
+                response['token']   = code62
 
                 return "%s" %(json.dumps(response))
 
