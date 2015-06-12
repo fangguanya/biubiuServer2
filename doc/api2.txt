@@ -1,0 +1,363 @@
+
+===================
+    用户登陆
+===================
+1. 用户登陆
+[POST] http://ip/api2/qq/login
+{
+    "openid"   : "OPENID",
+    "openkey"  : "OPEN_KEY",
+    "name"     : "The player name(nickname)",
+    "head_url" : "http://ip/the_player_head_url"
+}
+返回值：
+{
+    "result" : "success", 
+    "code"   : 0,
+    "id"     : 123456,
+    "token"  : "ABCDEFabcdef"
+}
+
+字段说明：
+"code"  : 返回码，表征操作正确与否及错误原因
+"id"    : 用户ID，用户的唯一标识
+"token" : 用户令牌， 标识用户登陆的有效性
+
+
+===================
+    学团相关API
+===================
+
+0. 资格验证
+该API作用是验证用户是否有创建学团资格
+[POST] http://ip/api/verify/license
+{
+    "license" : "LICENSE_CODE"
+}
+返回值：
+{
+    "result" : "success", 
+    "logo_url" : "http://xxx.xxx.com/xxx/xx.jpg"
+}
+说明：
+"result"描述操作结果，"success"表示成功，"error"表示失败。
+"logo_url"表示授权对象的logo路径。
+
+
+1. 创建学团
+[POST] http://ip/api/create/guild
+{
+    "player" : "PLAYER_ID",
+    "license": "LICENSE_CODE",
+    "name" : "NAME",
+    "logo" : "xxx"                  #学团logo，暂不支持             
+}
+返回值：
+{
+    "result" : "success", 
+    "id" : 100 
+}
+说明：
+"player"为QQ返回的openID,考虑以后用系统定义的序列ID
+
+
+2. 查找学团（附简单信息）
+通过位置或ID等查找
+查找类型： 全部，城市，附近，指定名称，指定ID
+[POST] http://ip/api/search/guild
+{
+    
+    "mode" : "all",                   #必选，选择范围"all","city", "nearby", "id", "name"
+    "range_min" : 1,                  #可选，期望获取学团信息的数量范围
+    "range_max" : 20,                 #可选，期望获取学团信息的数量范围
+    "sort_type" : "exp",              #可选，默认"exp", 支持类型"id"(按学团id号), "level"(按学团等级),"exp"(按学团经验)
+    "player" : "PLAYER_ID",           #可选，若设置，则返回的学团列表中若有该用户所在学团，将被标识出来
+
+    #其它可选参数
+    "city_name": xx,                  #城市ID， "mode"为"city"时的必要参数
+       
+    "longitude"：122.39592,           #经度， "mode"为"nearby"时的必要参数
+    "latitude"：    32.44345,         #纬度， "mode"为"nearby"时的必要参数
+
+    "guild_id" : 92,                  #学团ID， "mode"为"id"时的必要参数
+    "guild_name" : "xxxx"             #学团名称， "mode"为"name"时的必要参数
+
+   
+}
+返回值：
+{
+    "result" : "success", 
+    "guilds" : [
+        {
+            "guild_id" : 92,  
+            "guild_name" : "xxxx",
+            "head" : "xxx",                  #学团头像
+            "people_number" : 12,
+            "people_limits": 25,
+            "if_in_guild" : "yes" ,          # 返回值"yes"或"no"，表示是否在该学团中
+            "level" : 22,                    # 学团等级
+        },
+        {}
+    ]
+}
+
+
+
+3. 加入学团（先不限制，学团加满为止）
+[POST] http://ip/api/add/guildmember
+{
+    "player" : "PLAYER_ID",          #必选
+    "guild_id" : 92                  #学团ID
+}
+返回值：
+{
+    "result": "success"
+}
+
+
+4. 退出学团
+[POST] http://ip/api/quit/guild
+{
+    "player": "xxxxx"    #player的openid
+}
+返回值：
+{
+    "result" : "success"
+}
+
+
+5. 学团副团长设置（暂时不用）
+限制： 学团有副团长人数限制
+
+
+
+6. 获取学团信息（返回学团详细信息）
+[POST] http://ip/api/get/guild
+{
+    "mode" : "guild",        #必选， 根据什么方式获取学团信息，目前支持"guild"（根据学团ID）,"player"（根据用户openid）
+    "guild_id" : 21,         #当"mode"为"guild"时为必选， 学团ID
+    "player" : "xxxx"        #当"mode"为"player"时为必选，用户openid
+}
+
+返回值：
+{
+    "result": "success",
+    "guild_info": {
+        # 详细信息
+        "head": "xxx",                       #学团头像URL
+        "headID" : 23,                       #学团头像ID
+        "level" : 10,                        #学团等级
+        "createTime":"xxxx"                  #学团创建时间
+        "createrID":12,                      #学团创建者ID
+        "createrOpenID":"xxx",               #学团创建者OpenID
+        "limit":100,                         #学团成员限制
+        "number":89,                         #学团现有成员
+        "province" : 8,                      #省行政区域码
+        "city": 23,                          #市行政区域码
+        "county" : 11,                       #县行政区域码
+        "longitude" : 23.456,                #经度（浮点数）
+        "latitude" : 33.456,                 #纬度（浮点数）
+    
+        #经济道具类信息
+        "exp" : 100,                         #经验
+        "gold": -200,                        #金币
+        "gem": 1000,                         #宝石
+        "prop": {},                          #道具
+    },
+
+    "members" : [
+        {   
+            "openid" : "xxxx",
+            "name": "xxx",
+            "head": "xxx",
+            "level": 3,
+            "guild_exp" : 123,
+            "iscreater" : 0                #是否是团长（创建者），0:不是（普通学员）， 1:是（团长）
+        },
+        {}
+    ]
+}
+
+
+7. 学团解散（可暂不开放）
+[POST] http://ip/api/delete/guild
+{
+    "player": "xxxxx"   #player的openid(会长才能解散学团)
+}
+返回值：
+{
+    "result" : "success"
+}
+
+
+8. 加入学团审核（会长专用，暂不使用，加满为止）
+
+
+
+9. 学团信息设置
+[POST] http://ip/api/update/guild
+{
+    "player" : "PLAYER_ID",             #必选  (会长才有修改权限)
+    "guild_id" : 92 ,                   #必选, 学团ID
+    
+    #以下是学团可设置的参数，均为可选，使用时可以为一个或多个
+    "head": "xxx",                      #学团头像URL (暂不支持)
+    "headID" : 23,                      #学团头像ID  (暂不支持)
+    "province" : 8,                     #省行政区域码
+    "city": 23,                         #市行政区域码
+    "county" : 11,                      #县行政区域码
+    "longitude" : 23.456,               #经度（浮点数）
+    "latitude" : 33.456,                #纬度（浮点数）
+    
+
+}
+返回值：
+{
+    "result": "success"
+}
+
+
+
+
+
+
+===================
+    经济相关API
+===================
+1. 经济物品修改API
+[POST] http://ip/api/update/props
+{
+    "who" : "player",                   #必选， 需要修改的对象，"player","guild"
+    "openid" : "xxx",                   #"who" 为 "player"时为必选，用户的openid
+    "guildid" : 23,                     #"who" 为 "guild"时为必选，guild的id
+
+    #经济道具类参数
+    "exp" : 100,                        #可选， "who" 为 "player"时有效，经验增加，例如，经验增加100
+    "gold": -200,                       #可选， 金币的变化，例如，金币减少200
+    "gem": 1000,                        #可选， 宝石的变化，例如，宝石增加1000,普通学员暂不支持宝石
+    "prop": {
+            "bomb" : 20,                #可选， 道具炸弹的变化
+            "glass": 30,                #可选， 道具放大镜的变化
+            "delay": 10,                #可选， 道具延时的变化
+            "point": 100                #可选， 道具提示的变化
+    }                                   #可选， 道具的变化    
+}
+注意：
+1. 对于经验的增加，学团目前不支持经验增加的方法，学团的经验是随学团成员的经验增加而增加
+2. exp表示经验值，理论上只能增加
+
+
+
+
+===================
+    排行榜API
+===================
+1. 获取排行榜
+[GET] http://ip/api/ranklist/{openid}/{index}
+
+字段说明：
+openid：用户的openid
+index: 赛事ID
+
+返回值：
+{
+    "result": "success",                    #操作是否成功，"success" or "error"
+    "index": 99999,                         #赛事索引
+
+    "first":[                               #前三名信息
+        {
+            "name":"xxx",                   #player名称
+            "head":"xxx",                   #player头像路径
+            "guild_id": 20,                 #player所属学团，0表示没有学团
+            "guild_name": "xxx",            #学团名称
+            "guild_head": "xxx",            #学团头像路径
+            "ranking":1,                    #排名
+            "count": 23,                    #积分（名牌数）
+            "isplayer":0                    #是否是当前调用者
+        },{}   
+    ],
+
+    "ranklist": [                           #排行榜信息，返回调用者周围11人信息
+        {
+            "name":"xxx",
+            "head":"xxx",
+            "guild_id": 20,
+            "guild_name": "xxx",
+            "guild_head": "xxx",
+            "ranking":1,
+            "count":22,
+            "isplayer":0 
+        },{}
+    ]
+
+}
+
+SELECT player.id,player.name, player.headurl, player.guildId, guild2.name, guild2.head FROM player, guild2 WHERE player.guildId=guild2.id and player.id=147;
+
+select player.name,playerNamebrand.count from player left join playerNamebrand  on (player.id = playerNamebrand.playerId) order by playerNamebrand.count;
+
+
+
+===================
+    用户信息API
+===================
+1. 获取用户信息
+[GET] http://ip/api/info/player/{openid} 
+
+字段说明：
+openid：用户的openid
+
+返回值：
+{
+    "result" : "success",
+    "player": {
+        "name":"xxx",                   #player名称
+        "head":"xxx",                   #player头像路径
+        "guildID": 20,                  #player所属学团，0表示没有学团
+ 
+
+        "gold": 94,                     #金币数
+        "level": 0,                     #等级
+
+        "exp": 358,                     #经验
+        "prop": {                       #道具信息
+            "delay": 0,                 #延时道具数量
+            "glass": 0,                 #放大镜数量
+            "bomb": 0,                  #炸弹数量
+            "point": 0                  #提示道具数量
+        },
+        "id": 158,                      #用户ID(BiuBiu ID)
+        "gem": 0,                       #宝石数量
+        "inviter": 121003               #邀请人ID
+    }   
+}
+
+
+2. 更改用户信息
+
+
+3. 邀请码操作
+说明：用户使用其他用户分享的邀请码（即其他用户的ID），可以获得一次经济奖励。
+在player表中增加字段"inviter"，用来表示该用户的邀请人（该字段用ID表示）
+[POST] http://ip/api/add/inviter
+{
+    "inviter": 123456,                 #邀请人的ID
+    "player" : "xxx",                  #被邀请人的openid
+}
+返回值：
+{
+    "result":"success"
+}
+
+
+4. 查询邀请情况
+说明：该API用来获取用户本人已邀请的用户数量
+[GET] http://ip/api/number/inviter/{playerid}
+说明：playerid为用户的biubiu ID，非openid
+返回值：
+{
+    "result":"success",
+    "number":20
+}
+
+
