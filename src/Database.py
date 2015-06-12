@@ -321,7 +321,7 @@ class Database:
             ret, db = self.__connect_to_db();
             ret,conn = self.__create_connection(db);
 
-            sql = "insert into player(account, name, headurl, login) values ('%s','%s','%s','%s','%s');" \
+            sql = "insert into player(account, name, headurl, login) values ('%s','%s','%s','%s');" \
                 %self.__escape_tuple(params['openid'],params['name'].encode('utf-8'),params['head_url'], datetime.now());
 
             print "sql: %s." %(sql)

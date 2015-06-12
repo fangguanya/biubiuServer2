@@ -4,6 +4,7 @@
 import os
 import logging
 import json
+import time
 
 from Database import Database
 from datetime import datetime
@@ -12,6 +13,8 @@ import bottle
 
 from Consts import Consts
 from code import Code
+from utility import Utility
+
 
 #from bottle import route, run, template, error, static_file, default_app
 
@@ -36,6 +39,7 @@ class Server:
         # the database
         self.database = Database()
 
+        self.utility  = Utility()
         # mark system start time
         self.system_initialized = datetime.now()
 
@@ -341,6 +345,8 @@ class Server:
                         response['code']   = Code.ERROR_CODE_DATABASE
                         response['message'] = 'Add player:%s error:%s.' %(post_data_json['openid'],msg)
                         return "%s" %(json.dumps(response)) 
+                else:
+                    player_id = player_info[0]['id']
 
                 # generate token
                 now = time.time()
