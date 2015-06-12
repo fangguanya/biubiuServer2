@@ -10,5 +10,8 @@ class Code:
 
     ERROR_CODE_OK   = 0     # OK
 
-    ERROR_CODE_
+    ERROR_CODE_EXCEPTION = 1000     # error for code exception
+    
+
+    
 

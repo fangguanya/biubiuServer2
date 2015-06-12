@@ -11,6 +11,7 @@ from datetime import datetime
 import bottle
 
 from Consts import Consts
+from code import Code
 
 #from bottle import route, run, template, error, static_file, default_app
 
@@ -304,7 +305,7 @@ class Server:
             except Exception,ex:
                 response = {}
                 response['result'] = 'error'
-                response['code']   = 'error'
+                response['code']   = Code.ERROR_CODE_EXCEPTION
                 response['message'] = '%s' %(str(ex))
                 return "%s" %(json.dumps(response)) 
 
