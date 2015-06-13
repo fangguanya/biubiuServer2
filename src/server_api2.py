@@ -362,10 +362,24 @@ class Server:
                 else:
                     self.logger.debug('token:%s.' %(code62))
 
+                # update player token
+                update_player_params = {}
+                update_player_params['id']    = player_id
+                update_player_params['token'] = code62
+                update_player_params['login'] = datetime.now()
+
+                ret,msg = self.database.db_update_player_info_by_id(update_player_params)
+                if ret != 'success':
+                    response['result'] = 'error'
+                    response['message'] = 'update the player info error:%s.' %(msg)
+                    response['code']   = Code.ERROR_CODE_DATABASE
+                    return "%s" %(json.dumps(response))    
+
                 response['result']  = 'success'
                 response['id']      = player_id
                 response['code']    = Code.ERROR_CODE_OK
                 response['token']   = code62
+
 
                 return "%s" %(json.dumps(response))
 

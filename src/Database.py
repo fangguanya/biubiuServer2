@@ -480,6 +480,9 @@ class Database:
             if  params.has_key('inviter'):
                 update_cmd = "%s inviter=%s," %(update_cmd, params['inviter'])
 
+            if  params.has_key('token'):
+                update_cmd = "%s token='%s'," %(update_cmd, params['token'])
+
             if  len(update_cmd) > 0:
                 sql = "%s %s where account='%s';" %(sql, update_cmd[:-1], params['player_openid'])
             else:
@@ -506,6 +509,74 @@ class Database:
                 conn.close();
 
             return "error",str(ex)    
+
+    def db_update_player_info_by_id(self, params):
+        '''
+            Update player info by params
+        '''  
+        conn = None 
+        try:
+            sql = 'UPDATE player SET '
+            update_cmd = ''
+            conn = None
+
+            # check the must param
+            if not params.has_key('id'):
+                return "error", "no must param: id."
+
+
+            if  params.has_key('guild_id'):
+                update_cmd = "%s guildId=%s," %(update_cmd, params['guild_id'])
+
+            if  params.has_key('exp'):
+                update_cmd = "%s exp=%s," %(update_cmd, params['exp'])
+
+            if  params.has_key('gold'):
+                update_cmd = "%s gold=%s," %(update_cmd, params['gold'])
+
+            if  params.has_key('prop'):
+                update_cmd = "%s prop='%s'," %(update_cmd, params['prop'])
+
+            if  params.has_key('gem'):
+                update_cmd = "%s gem=%s," %(update_cmd, params['gem'])
+
+            if  params.has_key('inviter'):
+                update_cmd = "%s inviter=%s," %(update_cmd, params['inviter'])
+
+            if  params.has_key('token'):
+                update_cmd = "%s token='%s'," %(update_cmd, params['token'])
+
+            if  params.has_key('login'):
+                update_cmd = "%s login='%s'," %(update_cmd, params['login'])
+
+            if  len(update_cmd) > 0:
+                sql = "%s %s where id='%s';" %(sql, update_cmd[:-1], params['id'])
+            else:
+                return "error","no param can be set"
+
+
+            print sql
+
+            
+            ret, db = self.__connect_to_db();
+            ret,conn = self.__create_connection(db);
+            ret = conn.execute(sql);
+            
+            db.commit();
+
+            if conn is not None:
+                conn.close(); 
+
+            return "success","ok"
+
+
+        except Exception,ex:
+            if conn is not None:
+                conn.close();
+
+            return "error",str(ex)    
+
+
 
     def db_update_player_info_by_guildId(self, params,guild_id):
         '''
