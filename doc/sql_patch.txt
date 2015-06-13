@@ -16,3 +16,7 @@ alter table `player` add column `prop` varchar(128) NOT NULL DEFAULT '{}';
 ###### 2015.6.7 ######
 4.在plyaer表中增加inviter字段，用来标识用户的邀请人(表的key作为值)
 alter table `player` add column `inviter` int NOT NULL DEFAULT 0;
+
+###### 2015.6.13 ######
+5.在plyaer表中增加token字段，用来标识用户的有效性
+alter table `player` add column `token` varchar(16) NOT NULL DEFAULT '';
