@@ -1,8 +1,15 @@
 
+说明：
+该文档是对之前API多了大部分的整理和修改，故称为API2，即第二版API。
+但为了与现有已实现的API兼容，故老的API暂时是兼容的，待前端修改后，再进行老代码删除。
+为了区分新API，在文档中API的url中包含api2的为新API，说明中也用(v2)标识。
+
+
+
 ===================
     用户登陆
 ===================
-1. 用户登陆
+1. 用户登陆（v2）
 [POST] http://ip/api2/qq/login
 {
     "openid"   : "OPENID",
@@ -28,7 +35,7 @@
     学团相关API
 ===================
 
-0. 资格验证
+0. 资格验证(v1)
 该API作用是验证用户是否有创建学团资格
 [POST] http://ip/api/verify/license
 {
@@ -44,21 +51,23 @@
 "logo_url"表示授权对象的logo路径。
 
 
-1. 创建学团
-[POST] http://ip/api/create/guild
+1. 创建学团（v2）
+[POST] http://ip/api2/create/guild
 {
-    "player" : "PLAYER_ID",
-    "license": "LICENSE_CODE",
-    "name" : "NAME",
-    "logo" : "xxx"                  #学团logo，暂不支持             
+    "player" : 123456,              #必选，用户ID
+    "token"  : "xxxxxxxxx",         #必选，用户令牌， 标识用户登陆的有效性
+    "license": "LICENSE_CODE",      #必选，授权码
+    "name" : "NAME"                 #必选，学团名称         
 }
 返回值：
 {
     "result" : "success", 
-    "id" : 100 
+    "code"   : 0,
+    "id"     : 100，                #学团ID
+    "logo_url" : "xxxx"             #学团头像路径
 }
 说明：
-"player"为QQ返回的openID,考虑以后用系统定义的序列ID
+"player"为用户ID,可以登陆（login）时系统返回
 
 
 2. 查找学团（附简单信息）
@@ -301,8 +310,8 @@ select player.name,playerNamebrand.count from player left join playerNamebrand  
 ===================
     用户信息API
 ===================
-1. 获取用户信息
-[GET] http://ip/api/info/player/{openid} 
+1. 获取用户信息(v2)
+[GET] http://ip/api2/info/player/{id} 
 
 字段说明：
 openid：用户的openid

@@ -20,3 +20,20 @@ alter table `player` add column `inviter` int NOT NULL DEFAULT 0;
 ###### 2015.6.13 ######
 5.在plyaer表中增加token字段，用来标识用户的有效性
 alter table `player` add column `token` varchar(16) NOT NULL DEFAULT '';
+
+6.在player表中增加modify_cnt字段，用来标识用户重要信息（金币、道具等）的次数
+alter table `player` add column `modify_cnt` int NOT NULL DEFAULT 0;
+
+
+
+###### 2015.6.14 ######
+7. 修改player表中id的单调递增
+
+8. 修改player表中的id字段，均自增121000
+
+9. 修改其它表中关于用户id的字段，均自增加121000
+update player set id=id+121000;
+update playerNamebrand set playerID=playerID+121000;
+update guildMember2 set playerID=playerID+121000;
+
+10. guild2表中的createrID目前都是0，创建的时候只使用了openid并存储。需要完善createrID字段信息

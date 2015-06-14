@@ -520,6 +520,9 @@ class Database:
             update_cmd = ''
             conn = None
 
+            # the flag for if need modify the modify_cnt
+            modify_cnt_flag = 0
+
             # check the must param
             if not params.has_key('id'):
                 return "error", "no must param: id."
@@ -530,15 +533,19 @@ class Database:
 
             if  params.has_key('exp'):
                 update_cmd = "%s exp=%s," %(update_cmd, params['exp'])
+                modify_cnt_flag += 1
 
             if  params.has_key('gold'):
                 update_cmd = "%s gold=%s," %(update_cmd, params['gold'])
+                modify_cnt_flag += 1
 
             if  params.has_key('prop'):
                 update_cmd = "%s prop='%s'," %(update_cmd, params['prop'])
+                modify_cnt_flag += 1
 
             if  params.has_key('gem'):
                 update_cmd = "%s gem=%s," %(update_cmd, params['gem'])
+                modify_cnt_flag += 1
 
             if  params.has_key('inviter'):
                 update_cmd = "%s inviter=%s," %(update_cmd, params['inviter'])
@@ -548,6 +555,9 @@ class Database:
 
             if  params.has_key('login'):
                 update_cmd = "%s login='%s'," %(update_cmd, params['login'])
+
+            if  modify_cnt_flag > 0:
+                update_cmd = "%s modify_cnt=modify_cnt+%s," %(update_cmd, modify_cnt_flag)
 
             if  len(update_cmd) > 0:
                 sql = "%s %s where id='%s';" %(sql, update_cmd[:-1], params['id'])

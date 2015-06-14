@@ -614,6 +614,202 @@ class Server:
                 return "%s" %(json.dumps(response)) 
 
 
+        @bottle.route('/api2/create/guild', method="POST")
+        def api2_create_guild():
+            try:
+                
+                response = {}
+                response['result'] = 'error'
+                response['logo_url'] = ''
+                response['id'] = 0
+
+                self.logger.debug('handle a request:/api2/create/guild, ')
+
+                # get the data
+                post_data = bottle.request.body.getvalue()
+                self.logger.debug('handle the request data: %s' %(post_data))
+                '''
+                    The data format should be:
+                    {
+                        "player" : 123456,     
+                        "token"  : "xxxxxxxxx", 
+                        "license": "LICENSE_CODE",
+                        "name" : "NAME"
+                    }
+                '''
+                post_data_json = json.loads(post_data)
+
+                # check the must params
+                if not post_data_json.has_key('player'):
+                    response['result'] = 'error'
+                    response['message'] = 'need param player.'
+                    response['code']   = Code.ERROR_CODE_NEED_MUST_PARAMS
+                    return "%s" %(json.dumps(response))   
+
+                if not post_data_json.has_key('token'):
+                    response['result'] = 'error'
+                    response['message'] = 'need param token.'
+                    response['code']   = Code.ERROR_CODE_NEED_MUST_PARAMS
+                    return "%s" %(json.dumps(response))   
+
+                if not post_data_json.has_key('license'):
+                    response['result'] = 'error'
+                    response['message'] = 'need param license.'
+                    response['code']   = Code.ERROR_CODE_NEED_MUST_PARAMS
+                    return "%s" %(json.dumps(response))   
+
+                if not post_data_json.has_key('name'):
+                    response['result'] = 'error'
+                    response['message'] = 'need param name.'
+                    response['code']   = Code.ERROR_CODE_NEED_MUST_PARAMS
+                    return "%s" %(json.dumps(response))                       
+
+                # get the license info by param:license
+                ret,msg,license_info = self.database.db_get_license(post_data_json['license'])
+                if ret != 'success':
+                    response['result'] = 'error'
+                    response['message'] = 'get license error:%s.' %(msg)
+                    response['code']   = Code.ERROR_CODE_DATABASE
+                    return "%s" %(json.dumps(response)) 
+
+                if len(license_info) < 1:
+                    response['result'] = 'error'
+                    response['message'] = 'there is no license:%s.' %(post_data_json['license'])
+                    response['code']   = Code.ERROR_CODE_LICENSE
+                    return "%s" %(json.dumps(response)) 
+
+                # if license has been used, return 'error'
+                if license_info[0]['status'] != Consts.license_active:
+                    response['result'] = 'error'
+                    response['message'] = 'The license:%s has been used.' %(post_data_json['license'])
+                    response['code']   = Code.ERROR_CODE_LICENSE
+                    return "%s" %(json.dumps(response)) 
+
+                # check the params
+                if post_data_json.has_key('player'):
+                    # check the player
+                    # 1. get the player info
+                    ret,msg,player_info = self.database.db_get_player_by_id(post_data_json['player'])
+                    if ret != 'success':
+                        response['result'] = 'error'
+                        response['message'] = 'get player error:%s.' %(msg)
+                        response['code']   = Code.ERROR_CODE_DATABASE
+                        return "%s" %(json.dumps(response)) 
+
+                    if len(player_info) < 1:
+                        response['result'] = 'error'
+                        response['message'] = 'there is no player for id:%s.' %(post_data_json['player'])
+                        response['code']   = Code.ERROR_CODE_DATABASE_NO_PLAYER
+                        return "%s" %(json.dumps(response)) 
+
+                    self.logger.debug('Get player info: %s.' %(json.dumps(player_info)))
+
+                    # 2. check player has if or not join guild.
+                    if player_info[0]['guildID'] > 0:
+                        response['result'] = 'error'
+                        response['code']   = Code.ERROR_CODE_PLAYER_HAS_IN_GUILD
+                        response['message'] = 'player:%s is in other guild:%s.' %(post_data_json['player'],player_info[0]['guildID'])
+                        return "%s" %(json.dumps(response)) 
+
+                    # 3. check the player token
+                    if player_info[0]['token'] != post_data_json['token']:
+                        response['result'] = 'error'
+                        response['message'] = 'player token error.'
+                        response['code']   = Code.ERROR_CODE_FAILURE_TOKEN
+                        return "%s" %(json.dumps(response))     
+                    
+                else:
+                    response['result'] = 'error'
+                    response['code']   = Code.ERROR_CODE_NEED_MUST_PARAMS
+                    response['message'] = 'need param player.'
+                    return "%s" %(json.dumps(response)) 
+
+                guild_id = -1
+                # create the guild
+                if license_info[0]['logo'] != '':
+                    post_data_json['logo'] = license_info[0]['logo']
+
+                response['logo_url'] = post_data_json['logo']
+
+                ret, msg, guild_id = self.database.db_create_guild(post_data_json)
+                if  ret != 'success':
+                    response['result'] = 'error'
+                    response['message'] = 'create guild error:%s.' %(msg)
+                    response['code']   = Code.ERROR_CODE_DATABASE
+                    return "%s" %(json.dumps(response)) 
+                else:
+                    self.logger.debug('guild create success, id: %s' %(guild_id))
+
+
+                # update the license info
+                license_update_params = {}
+                license_update_params['license'] = post_data_json['license']
+                license_update_params['playerOpenID'] = player_info[0]['account']
+                license_update_params['playerID'] = player_info[0]['id']
+                license_update_params['status'] = Consts.license_used
+                ret, msg = self.database.db_update_license(license_update_params)
+                if  ret != 'success':
+                    response['result'] = 'error'
+                    response['code']   = Code.ERROR_CODE_DATABASE
+                    response['message'] = 'update license error:%s.' %(msg)
+                    return "%s" %(json.dumps(response)) 
+
+
+
+                # add the player to guild
+                create_member_params = {}
+                create_member_params['player'] = player_info[0]['account']
+                create_member_params['player_id'] = player_info[0]['id']
+                create_member_params['guild_id'] = guild_id
+                ret,msg,member_id = self.database.db_create_guildMember(create_member_params)
+                if ret != 'success':
+                    response['result'] = 'error'
+                    response['code']   = Code.ERROR_CODE_DATABASE
+                    response['message'] = 'Add player:%s to guild error:%s.' %(create_member_params['player'],create_member_params['guild_id'])
+                    return "%s" %(json.dumps(response)) 
+                else:
+                    self.logger.debug('Add the player member:%s ok.' %(member_id))
+
+                # update the guild info
+                update_guild_params = {}
+                update_guild_params['guild_id'] = guild_id
+                update_guild_params['number'] =  1
+
+                ret,msg = self.database.db_update_guild_info(update_guild_params)
+                if ret != 'success':
+                    response['result'] = 'error'
+                    response['code']   = Code.ERROR_CODE_DATABASE
+                    response['message'] = 'update the number to guild error:%s.' %(msg)
+                    return "%s" %(json.dumps(response)) 
+                else:
+                    self.logger.debug('update the guild info success.')
+
+                # update the player info
+                update_player_params = {}
+                update_player_params['id'] = player_info[0]['id']
+                update_player_params['guild_id'] = guild_id
+
+                ret,msg = self.database.db_update_player_info_by_id(update_player_params)
+                if ret != 'success':
+                    response['result'] = 'error'
+                    response['code']   = Code.ERROR_CODE_DATABASE
+                    response['message'] = 'update the player info error:%s.' %(msg)
+                    return "%s" %(json.dumps(response))   
+                else:
+                    self.logger.debug('update the player info success.')
+
+                response['result'] = 'success'
+                response['id'] = guild_id
+
+                return "%s" %(json.dumps(response))
+
+            except Exception,ex:
+                response = {}
+                response['result'] = 'error'
+                response['code']   = Code.ERROR_CODE_EXCEPTION
+                response['message'] = '%s' %(str(ex))
+                return "%s" %(json.dumps(response)) 
+
 
         @bottle.route('/api/search/guild', method="POST")
         def api_search_guild():
@@ -1826,6 +2022,49 @@ class Server:
 
                 # get the player info , if not get player info ,just get by index
                 ret,msg,player_info = self.database.db_get_player_by_openid(post_data_json['player'])
+                if ret != 'success':
+                    response['result'] = 'error'
+                    response['message'] = 'get player error:%s.' %(msg)
+                    return "%s" %(json.dumps(response)) 
+
+                if len(player_info) < 1:
+                    response['result'] = 'error'
+                    response['message'] = 'there is no player for id:%s.' %(post_data_json['player'])
+                    return "%s" %(json.dumps(response)) 
+
+                self.logger.debug('Get player info: %s.' %(json.dumps(player_info)))
+
+                response['player'] = player_info[0]
+                response['result'] = "success"
+                return "%s" %(json.dumps(response)) 
+
+            except Exception,ex:
+                response = {}
+                response['result'] = 'error'
+                response['message'] = '%s' %(str(ex))
+                return "%s" %(json.dumps(response)) 
+
+        @bottle.route('/api2/info/player/:playerid')
+        def api2_get_player_detal_info(playerid=None):
+            response = {}
+            response['result']  = 'error'
+
+            try:
+                self.logger.debug('handle a request: /api2/info/player/:playerid')   
+                self.logger.debug('playerid:%s, type:%s.' %(playerid,type(playerid)))   
+                # check the params
+                if playerid == None:
+                    response['result'] = 'error'
+                    response['message'] = 'params playerid is None.'
+                    response['code']   = Code.ERROR_CODE_PARAMS_ERROR
+                    return "%s" %(json.dumps(response))
+
+
+                post_data_json = {}
+                post_data_json['player'] = int(playerid)
+
+                # get the player info , if not get player info ,just get by index
+                ret,msg,player_info = self.database.db_get_player_by_id(post_data_json['player'])
                 if ret != 'success':
                     response['result'] = 'error'
                     response['message'] = 'get player error:%s.' %(msg)
