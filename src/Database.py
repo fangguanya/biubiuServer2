@@ -517,7 +517,7 @@ class Database:
         conn = None 
         try:
             sql = 'UPDATE player SET '
-            update_cmd = ''
+            update_cmd = u""
             conn = None
 
             # the flag for if need modify the modify_cnt
@@ -558,6 +558,23 @@ class Database:
 
             if  modify_cnt_flag > 0:
                 update_cmd = "%s modify_cnt=modify_cnt+%s," %(update_cmd, modify_cnt_flag)
+
+            if  params.has_key('name'):
+                print type(params['name'])
+                #print params['name']
+                params['name'] = params['name'].encode('utf-8')
+                print type(params['name'])
+                print params['name']
+                update_cmd = "%s name='%s'," %self.__escape_tuple(update_cmd, params['name'])
+
+                print update_cmd
+                print type(update_cmd)
+
+            if  params.has_key('headurl'):
+                update_cmd = "%s headurl='%s'," %(update_cmd.encode('utf-8'), params['headurl'])
+
+
+
 
             if  len(update_cmd) > 0:
                 sql = "%s %s where id='%s';" %(sql, update_cmd[:-1], params['id'])

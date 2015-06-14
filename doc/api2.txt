@@ -314,11 +314,12 @@ select player.name,playerNamebrand.count from player left join playerNamebrand  
 [GET] http://ip/api2/info/player/{id} 
 
 字段说明：
-openid：用户的openid
+id：用户的id(登陆时返回id值)
 
 返回值：
 {
     "result" : "success",
+    "code"   : 0,
     "player": {
         "name":"xxx",                   #player名称
         "head":"xxx",                   #player头像路径
@@ -342,7 +343,22 @@ openid：用户的openid
 }
 
 
-2. 更改用户信息
+2. 更改用户信息(v2)
+[POST] http://ip/api2/update/player
+{
+    "id": 123456,                   #用户的ID
+
+    # 基本信息
+    "name":"xxx",                   #player名称
+    "head":"xxx",                   #player头像路径
+
+    # 位置信息
+
+}
+返回值：
+{
+    "result":"success"
+}
 
 
 3. 邀请码操作

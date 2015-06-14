@@ -2067,11 +2067,13 @@ class Server:
                 ret,msg,player_info = self.database.db_get_player_by_id(post_data_json['player'])
                 if ret != 'success':
                     response['result'] = 'error'
+                    response['code']   = Code.ERROR_CODE_DATABASE
                     response['message'] = 'get player error:%s.' %(msg)
                     return "%s" %(json.dumps(response)) 
 
                 if len(player_info) < 1:
                     response['result'] = 'error'
+                    response['code']   = Code.ERROR_CODE_DATABASE_NO_PLAYER
                     response['message'] = 'there is no player for id:%s.' %(post_data_json['player'])
                     return "%s" %(json.dumps(response)) 
 
@@ -2079,15 +2081,83 @@ class Server:
 
                 response['player'] = player_info[0]
                 response['result'] = "success"
+                response['code']   = Code.ERROR_CODE_OK
                 return "%s" %(json.dumps(response)) 
 
             except Exception,ex:
                 response = {}
                 response['result'] = 'error'
+                response['code']   = Code.ERROR_CODE_EXCEPTION
                 response['message'] = '%s' %(str(ex))
                 return "%s" %(json.dumps(response)) 
 
+        @bottle.route('/api2/update/player', method="POST")
+        def api2_get_update_player_info():
+            response = {}
+            response['result']  = 'error'
 
+            try:
+                self.logger.debug('handle a request: /api2/update/player')   
+                # get the data
+                post_data = bottle.request.body.getvalue()
+                self.logger.debug('handle the request data: %s' %(post_data))
+
+                '''
+                    post data format:
+                    {
+                        "id": 123456, 
+
+                        "name":"xxx", 
+                        "head":"xxx",
+
+                        ...
+                    }
+
+                '''
+                post_data_json = json.loads(post_data)
+
+                # check the params
+                if not post_data_json.has_key('id'):
+                    response['result'] = 'error'
+                    response['code']   = Code.ERROR_CODE_NEED_MUST_PARAMS
+                    response['message'] = 'need param: id.'
+                    return "%s" %(json.dumps(response)) 
+
+                need_update_params_cnt = 0
+
+                # update player token
+                update_player_params = {}
+                update_player_params['id']    = post_data_json['id']
+
+                if post_data_json.has_key('name'):
+                    update_player_params['name']    = post_data_json['name']
+                    need_update_params_cnt += 1
+
+
+                if post_data_json.has_key('head'):
+                    update_player_params['headurl']    = post_data_json['head']
+                    need_update_params_cnt += 1
+
+
+                ret,msg = self.database.db_update_player_info_by_id(update_player_params)
+                if ret != 'success':
+                    response['result'] = 'error'
+                    response['message'] = 'update the player info error:%s.' %(msg)
+                    response['code']   = Code.ERROR_CODE_DATABASE
+                    return "%s" %(json.dumps(response))  
+
+
+
+                response['result'] = "success"
+                response['code']   = Code.ERROR_CODE_OK
+                return "%s" %(json.dumps(response)) 
+
+            except Exception,ex:
+                response = {}
+                response['result'] = 'error'
+                response['code']   = Code.ERROR_CODE_EXCEPTION
+                response['message'] = '%s' %(str(ex))
+                return "%s" %(json.dumps(response)) 
 
         @bottle.route('/api/add/inviter', method="POST")
         def api_add_inviter():

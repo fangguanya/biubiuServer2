@@ -37,3 +37,5 @@ update playerNamebrand set playerID=playerID+121000;
 update guildMember2 set playerID=playerID+121000;
 
 10. guild2表中的createrID目前都是0，创建的时候只使用了openid并存储。需要完善createrID字段信息
+
+
