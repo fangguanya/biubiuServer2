@@ -565,13 +565,15 @@ class Database:
                 params['name'] = params['name'].encode('utf-8')
                 print type(params['name'])
                 print params['name']
-                update_cmd = "%s name='%s'," %self.__escape_tuple(update_cmd, params['name'])
+                #update_cmd = "%s name='%s'," %self.__escape_tuple(update_cmd, params['name'])
+                update_cmd = "{0} name='{1}',".format(update_cmd.encode('utf-8'), params['name'])
 
                 print update_cmd
                 print type(update_cmd)
 
             if  params.has_key('headurl'):
-                update_cmd = "%s headurl='%s'," %(update_cmd.encode('utf-8'), params['headurl'])
+                #update_cmd = "%s headurl='%s'," %(update_cmd.encode('utf-8'), params['headurl'])
+                update_cmd = "{0} headurl='{1}',".format(update_cmd, params['headurl'])
 
 
 

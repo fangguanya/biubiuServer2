@@ -5,6 +5,10 @@ import os
 import logging
 import json
 import time
+import sys
+
+reload(sys)
+sys.setdefaultencoding('utf-8')
 
 from Database import Database
 from datetime import datetime
@@ -32,6 +36,8 @@ class Server:
 
         self.author  = __author__
         self.version = __version__
+        self.sysCharType = sys.getfilesystemencoding()
+        print "system default coding type: %s" %(self.sysCharType)
 
         self.file_path = os.path.realpath(__file__)
         self.dir_path  = os.path.dirname(self.file_path)
@@ -2100,7 +2106,7 @@ class Server:
                 self.logger.debug('handle a request: /api2/update/player')   
                 # get the data
                 post_data = bottle.request.body.getvalue()
-                self.logger.debug('handle the request data: %s' %(post_data))
+                self.logger.debug('handle the request date type:%s, data: %s' %(type(post_data), post_data))
 
                 '''
                     post data format:
@@ -2114,6 +2120,8 @@ class Server:
                     }
 
                 '''
+                #post_data = post_data.decode(self.sysCharType)
+                #self.logger.debug('handle the request date, after decode type:%s, data: %s' %(type(post_data), post_data))
                 post_data_json = json.loads(post_data)
 
                 # check the params
