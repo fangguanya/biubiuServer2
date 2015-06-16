@@ -12,6 +12,8 @@ from Consts import Consts
 
 class Database:
 
+    player_id_offset = 121000
+
     def __connect_to_db(self):
         try:
             #print "mysqlHost:%s, mysqlUser:%s, mysqlPassword:%s, mysqlDatabase:%s" %(Config.mysqlHost, 
@@ -193,7 +195,7 @@ class Database:
                 result_one['head'] = row[2]
                 result_one['level'] = row[3]
                 result_one['createTime'] = str(row[4])
-                result_one['createrID'] = row[5]
+                result_one['createrID'] = row[5]+self.player_id_offset
                 result_one['createrOpenID'] = row[6]
                 result_one['exp'] = row[7]
                 result_one['gold'] = row[8]
@@ -368,7 +370,7 @@ class Database:
 
             for row in dataset:
                 result_one = {}
-                result_one['id']      = row[0]
+                result_one['id']      = row[0]+self.player_id_offset
                 result_one['account'] = row[1]
                 result_one['guildID'] = row[2]
                 result_one['name']    = row[3]
@@ -408,7 +410,7 @@ class Database:
             ret,conn = self.__create_connection(db);
 
             # insert project
-            sql = "select id, account, guildID, name, headurl, level, gold, exp, gem, prop, inviter from player where player.id='%s';"  %(playerid)
+            sql = "select id, account, guildID, name, headurl, level, gold, exp, gem, prop, inviter from player where player.id=%s;"  %(playerid-self.player_id_offset)
             #Factory.logger.debug("[sql]%s" %(sql));
             print "sql: %s." %(sql)
             conn.execute(sql);
@@ -417,7 +419,7 @@ class Database:
 
             for row in dataset:
                 result_one = {}
-                result_one['id']      = row[0]
+                result_one['id']      = row[0]+self.player_id_offset
                 result_one['account'] = row[1]
                 result_one['guildID'] = row[2]
                 result_one['name']    = row[3]
@@ -579,7 +581,7 @@ class Database:
 
 
             if  len(update_cmd) > 0:
-                sql = "%s %s where id='%s';" %(sql, update_cmd[:-1], params['id'])
+                sql = "%s %s where id='%s';" %(sql, update_cmd[:-1], params['id']-self.player_id_offset)
             else:
                 return "error","no param can be set"
 
@@ -896,7 +898,7 @@ class Database:
                 result_one['logo'] = row[0]
                 result_one['name'] = row[1]
                 result_one['status'] = row[2]
-                result_one['playerID'] = row[3]
+                result_one['playerID'] = row[3]+self.player_id_offset
                 result_one['playerOpenID'] = row[4]
 
 
@@ -935,7 +937,7 @@ class Database:
                 update_cmd = "%s playerOpenID='%s'," %(update_cmd, params['playerOpenID'])
 
             if  params.has_key('playerID'):
-                update_cmd = "%s playerID=%s," %(update_cmd, params['playerID'])
+                update_cmd = "%s playerID=%s," %(update_cmd, params['playerID']-self.player_id_offset)
 
             if  params.has_key('status'):
                 update_cmd = "%s status='%s'," %(update_cmd, params['status'])
@@ -993,7 +995,7 @@ class Database:
 
             for row in dataset:
                 result_one = {}
-                result_one['playerID'] = row[0]
+                result_one['playerID'] = row[0]+self.player_id_offset
                 result_one['index'] = row[1]
                 result_one['count'] = row[2]
 
@@ -1033,7 +1035,7 @@ class Database:
 
             for row in dataset:
                 result_one = {}
-                result_one['playerID'] = row[0]
+                result_one['playerID'] = row[0]+self.player_id_offset
                 result_one['index'] = row[1]
                 result_one['count'] = row[2]
 
@@ -1064,7 +1066,7 @@ class Database:
             ret,conn = self.__create_connection(db);
 
             # insert project
-            sql = "select id,playerID,number from (select id, playerID, playerNamebrand.index, count, (@number:=@number+1) as number from playerNamebrand,(select (@number:=0)) b where playerNamebrand.index=%s order by count desc) c where playerID=%s;"  %(index,playerID)
+            sql = "select id,playerID,number from (select id, playerID, playerNamebrand.index, count, (@number:=@number+1) as number from playerNamebrand,(select (@number:=0)) b where playerNamebrand.index=%s order by count desc) c where playerID=%s;"  %(index,playerID-self.player_id_offset)
             #Factory.logger.debug("[sql]%s" %(sql));
             print "sql: %s." %(sql)
             conn.execute(sql);
@@ -1073,7 +1075,7 @@ class Database:
 
             for row in dataset:
                 result_one = {}
-                result_one['id'] = row[0]
+                result_one['id'] = row[0]+self.player_id_offset
                 result_one['playerID'] = row[1]
                 result_one['number'] = int(row[2])
 
@@ -1103,7 +1105,7 @@ class Database:
             ret, db = self.__connect_to_db();
             ret,conn = self.__create_connection(db);
 
-            sql = "select count(inviter) from player where inviter=%s;"  %(playerid)
+            sql = "select count(inviter) from player where inviter=%s;"  %(int(playerid)-self.player_id_offset)
             
             print "sql: %s." %(sql)
             conn.execute(sql);
