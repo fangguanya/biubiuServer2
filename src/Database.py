@@ -361,7 +361,7 @@ class Database:
             ret,conn = self.__create_connection(db);
 
             # insert project
-            sql = "select id, account, guildID, name, headurl, level, gold, exp, gem, prop, inviter from player where player.account='%s';"  %(openid)
+            sql = "select id, account, guildID, name, headurl, level, gold, exp, gem, prop, inviter,modify_cnt from player where player.account='%s';"  %(openid)
             #Factory.logger.debug("[sql]%s" %(sql));
             print "sql: %s." %(sql)
             conn.execute(sql);
@@ -381,7 +381,8 @@ class Database:
                 result_one['exp']    = row[7]
                 result_one['gem']    = row[8]
                 result_one['prop']   = json.loads(row[9])
-                result_one['inviter']    = row[10]    
+                result_one['inviter']    = row[10]
+                result_one['modify_cnt']    = row[11]
 
 
                 #print result_one
@@ -464,27 +465,42 @@ class Database:
                 return "error", "no must param: player_openid."
 
 
+            # the flag for if need modify the modify_cnt
+            modify_cnt_flag = 0
+
+
             if  params.has_key('guild_id'):
                 update_cmd = "%s guildId=%s," %(update_cmd, params['guild_id'])
+                modify_cnt_flag += 1
 
             if  params.has_key('exp'):
                 update_cmd = "%s exp=%s," %(update_cmd, params['exp'])
+                modify_cnt_flag += 1
 
             if  params.has_key('gold'):
                 update_cmd = "%s gold=%s," %(update_cmd, params['gold'])
+                modify_cnt_flag += 1
 
             if  params.has_key('prop'):
                 update_cmd = "%s prop='%s'," %(update_cmd, params['prop'])
+                modify_cnt_flag += 1
 
             if  params.has_key('gem'):
                 update_cmd = "%s gem=%s," %(update_cmd, params['gem'])
+                modify_cnt_flag += 1
 
             if  params.has_key('inviter'):
                 update_cmd = "%s inviter=%s," %(update_cmd, params['inviter'])
+                modify_cnt_flag += 1
 
             if  params.has_key('token'):
                 update_cmd = "%s token='%s'," %(update_cmd, params['token'])
 
+
+            if  modify_cnt_flag > 0:
+                update_cmd = "%s modify_cnt=modify_cnt+%s," %(update_cmd, modify_cnt_flag)
+
+                
             if  len(update_cmd) > 0:
                 sql = "%s %s where account='%s';" %(sql, update_cmd[:-1], params['player_openid'])
             else:
@@ -532,6 +548,7 @@ class Database:
 
             if  params.has_key('guild_id'):
                 update_cmd = "%s guildId=%s," %(update_cmd, params['guild_id'])
+                modify_cnt_flag += 1
 
             if  params.has_key('exp'):
                 update_cmd = "%s exp=%s," %(update_cmd, params['exp'])
@@ -551,6 +568,7 @@ class Database:
 
             if  params.has_key('inviter'):
                 update_cmd = "%s inviter=%s," %(update_cmd, params['inviter'])
+                modify_cnt_flag += 1
 
             if  params.has_key('token'):
                 update_cmd = "%s token='%s'," %(update_cmd, params['token'])

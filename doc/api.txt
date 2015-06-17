@@ -304,7 +304,8 @@ openid：用户的openid
         },
         "id": 158,                      #用户ID(BiuBiu ID)
         "gem": 0,                       #宝石数量
-        "inviter": 121003               #邀请人ID
+        "inviter": 121003,              #邀请人ID
+        "modify_cnt": 2345              #用户信息修改次数
     }   
 }
 
