@@ -109,6 +109,22 @@ class Server:
             self.schools_json = {}
 
 
+        self.normal_guild_heads = [
+            {"id":1,  "head":"/images/guild/1.png"},
+            {"id":2,  "head":"/images/guild/2.png"},
+            {"id":3,  "head":"/images/guild/3.png"},
+            {"id":4,  "head":"/images/guild/4.png"},
+            {"id":5,  "head":"/images/guild/5.png"},
+            {"id":6,  "head":"/images/guild/6.png"},
+            {"id":7,  "head":"/images/guild/7.png"},
+            {"id":8,  "head":"/images/guild/8.png"},
+            {"id":9,  "head":"/images/guild/9.png"},
+            {"id":10, "head":"/images/guild/10.png"}
+        ]
+
+        self.logger.debug("normal_guild_heads: %s" %(json.dumps(self.normal_guild_heads)))
+
+
         self.logger.info('init over.')
 
     
@@ -1395,6 +1411,15 @@ class Server:
                 response['message'] = '%s' %(str(ex))
                 return "%s" %(json.dumps(response)) 
 
+        @bottle.route('/api2/guild/heads')
+        def api2_get_normal_guild_heads():
+
+            response = {}
+            response['result'] = 'success'
+            response['code']   = Code.ERROR_CODE_OK
+            response['heads']  = self.normal_guild_heads
+
+            return "%s" %(json.dumps(response))
 
 
         @bottle.route('/api/update/guild', method="POST")

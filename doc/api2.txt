@@ -226,20 +226,21 @@
 }
 
 
-10. 获取普通学团头像列表
-[GET] http://ip/api/guild/heads
+10. 获取普通学团头像列表(v2)
+[GET] http://ip/api2/guild/heads
 返回值：
 {
     "result": "success",
+    "code"   : 0,
     "heads" : [
         {
             "head": "xxx",                      #学团头像URL
-            "headID" : 1                        #学团头像ID 
+            "id" : 1                            #学团头像ID 
         },
         ...
         {
             "head": "xxx",
-            "headID" : 10
+            "id" : 10
         }
     ]
 
@@ -255,7 +256,8 @@
 }
 返回值：
 {
-    "result": "success"
+    "result": "success",
+    "code"   : 0
 }
 
 
