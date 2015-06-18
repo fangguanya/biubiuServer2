@@ -246,7 +246,7 @@
 
 }
 
-11. 从学团中移除某个学员
+11. 从学团中移除某个学员[未完成]
 [POST] http://ip/api2/guild/remove/member
 返回值：
 {

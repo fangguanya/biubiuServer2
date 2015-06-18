@@ -45,3 +45,6 @@ update guildMember2 set playerID=playerID+121000;
 现在API服务器操作时， 会在获取用户ID时增加121000，修改查询操作时减去用户提供的ID值121000。
 
 
+###### 2015.6.17 ######
+12. 在guild2中增加字段address，该字段主要是描述学团的具体位置信息
+alter table `guild2` add column `address` varchar(128) NOT NULL DEFAULT '';

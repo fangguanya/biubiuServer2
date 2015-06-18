@@ -265,6 +265,7 @@ class Database:
                 update_cmd = "%s status='%s'," %(update_cmd, params['status'])
 
 
+
             if  params.has_key('exp'):
                 update_cmd = "%s exp=%s," %(update_cmd, params['exp'])
 
@@ -276,6 +277,11 @@ class Database:
 
             if  params.has_key('prop'):
                 update_cmd = "%s prop='%s'," %(update_cmd, params['prop'])    
+
+
+            if  params.has_key('address'):
+                #update_cmd = "%s address='%s'," %(update_cmd, params['address']) 
+                update_cmd = "{0} address='{1}',".format(update_cmd, params['address'])
 
             if  len(update_cmd) > 0:
                 sql = "%s %s where id=%s;" %(sql, update_cmd[:-1], params['guild_id'])

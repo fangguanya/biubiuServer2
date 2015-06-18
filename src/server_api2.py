@@ -1542,6 +1542,10 @@ class Server:
                 if  post_data_json.has_key('latitude'):
                     update_guild_params['latitude'] = post_data_json['latitude']  
 
+                if  post_data_json.has_key('address'):
+                    update_guild_params['address'] = post_data_json['address']  
+
+
                 ret,msg = self.database.db_update_guild_info(update_guild_params)
                 if ret != 'success':
                     response['result'] = 'error'
