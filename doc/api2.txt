@@ -9,7 +9,7 @@
 ===================
     用户登陆
 ===================
-1. 用户登陆（v2）
+1. 用户登陆（v2）(目前仅在启动时调用，用来获取id和token, 登录系统仍用老的socket模式)
 [POST] http://ip/api2/qq/login
 {
     "openid"   : "OPENID",
@@ -206,17 +206,17 @@
 9. 学团信息设置
 [POST] http://ip/api/update/guild
 {
-    "player" : "PLAYER_ID",             #必选  (会长才有修改权限)
+    "player" : "PLAYER_ID",             #必选  用户openid(会长才有修改权限)
     "guild_id" : 92 ,                   #必选, 学团ID
     
     #以下是学团可设置的参数，均为可选，使用时可以为一个或多个
-    "head": "xxx",                      #学团头像URL (暂不支持)
-    "headID" : 23,                      #学团头像ID  (暂不支持)
+    "headID" : 23,                      #学团头像ID  
     "province" : 8,                     #省行政区域码
     "city": 23,                         #市行政区域码
     "county" : 11,                      #县行政区域码
     "longitude" : 23.456,               #经度（浮点数）
     "latitude" : 33.456,                #纬度（浮点数）
+    "address" : "xxxxxx"                #学团地理位置（例如：北京市海淀区中关村1号）
     
 
 }
@@ -226,7 +226,37 @@
 }
 
 
+10. 获取普通学团头像列表
+[GET] http://ip/api/guild/heads
+返回值：
+{
+    "result": "success",
+    "heads" : [
+        {
+            "head": "xxx",                      #学团头像URL
+            "headID" : 1                        #学团头像ID 
+        },
+        ...
+        {
+            "head": "xxx",
+            "headID" : 10
+        }
+    ]
 
+}
+
+11. 从学团中移除某个学员
+[POST] http://ip/api2/guild/remove/member
+返回值：
+{
+    "player" : 012345,                  #必选，会长ID(会长才有修改权限)
+    "guild_id" : 92 ,                   #必选, 学团ID
+    "member" : 123456                   #必须，学员ID
+}
+返回值：
+{
+    "result": "success"
+}
 
 
 
@@ -310,6 +340,38 @@ select player.name,playerNamebrand.count from player left join playerNamebrand  
 ===================
     用户信息API
 ===================
+0. 获取用户信息
+[GET] http://ip/api/info/player/{openid} 
+
+字段说明：
+openid：用户的openid
+
+返回值：
+{
+    "result" : "success",
+    "player": {
+        "name":"xxx",                   #player名称
+        "head":"xxx",                   #player头像路径
+        "guildID": 20,                  #player所属学团，0表示没有学团
+ 
+
+        "gold": 94,                     #金币数
+        "level": 0,                     #等级
+
+        "exp": 358,                     #经验
+        "prop": {                       #道具信息
+            "delay": 0,                 #延时道具数量
+            "glass": 0,                 #放大镜数量
+            "bomb": 0,                  #炸弹数量
+            "point": 0                  #提示道具数量
+        },
+        "id": 158,                      #用户ID(BiuBiu ID)
+        "gem": 0,                       #宝石数量
+        "inviter": 121003,              #邀请人ID
+        "modify_cnt": 2345              #用户信息修改次数
+    }   
+}
+
 1. 获取用户信息(v2)
 [GET] http://ip/api2/info/player/{id} 
 
@@ -347,6 +409,7 @@ id：用户的id(登陆时返回id值)
 [POST] http://ip/api2/update/player
 {
     "id": 123456,                   #用户的ID
+    "token" : "xxxxx",
 
     # 基本信息
     "name":"xxx",                   #player名称
