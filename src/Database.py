@@ -329,8 +329,8 @@ class Database:
             ret, db = self.__connect_to_db();
             ret,conn = self.__create_connection(db);
 
-            sql = "insert into player(account, name, headurl, login) values ('%s','%s','%s','%s');" \
-                %self.__escape_tuple(params['openid'],params['name'].encode('utf-8'),params['head_url'], datetime.now());
+            sql = "insert into player2(id, account, name, headurl, login) values (%s,'%s','%s','%s','%s');" \
+                %self.__escape_tuple(params['id'],params['openid'],params['name'].encode('utf-8'),params['head_url'], datetime.now());
 
             print "sql: %s." %(sql)
             conn.execute(sql);
@@ -357,6 +357,72 @@ class Database:
 
 
     def db_get_player_by_openid(self, openid):
+        '''
+            get the player info by openid.
+        '''
+        try:
+            result = []
+            conn = None;
+            ret, db = self.__connect_to_db();
+            ret,conn = self.__create_connection(db);
+
+            # insert project
+            sql = "select id, account, guildID, name, headurl, level, gold, exp, gem, prop, inviter,modify_cnt from player2 where player2.account='%s';"  %(openid)
+            #Factory.logger.debug("[sql]%s" %(sql));
+            print "sql: %s." %(sql)
+            conn.execute(sql);
+
+            dataset = conn.fetchall();
+
+            for row in dataset:
+                result_one = {}
+                result_one['id']      = row[0]+self.player_id_offset
+                result_one['account'] = row[1]
+                result_one['guildID'] = row[2]
+                result_one['name']    = row[3]
+                result_one['head']    = row[4]
+                result_one['level']   = row[5]
+
+                result_one['gold']   = row[6]
+                result_one['exp']    = row[7]
+                result_one['gem']    = row[8]
+                result_one['prop']   = json.loads(row[9])
+                result_one['inviter']    = row[10]
+                result_one['modify_cnt']    = row[11]
+
+
+                #print result_one
+                result.append(result_one)
+
+            if conn is not None:
+                conn.close(); 
+
+
+            if len(result) < 1:
+                ret,msg,player_info = self.database.db_get_player_from_socket_server_by_openid(openid)
+                if ret == 'success' and len(player_info) >= 1:
+                    player_params = {}
+                    player_params['id'] = player_info[0]['id']-self.player_id_offset
+                    player_params['openid'] = player_info[0]['account']
+                    player_params['name'] = player_info[0]['name']
+                    player_params['head_url'] = player_info[0]['headurl']
+
+                    ret,msg,player_id = self.database.db_add_player(player_params)
+                    if ret != success:
+                        result = player_info
+                    elif :
+                        print "add new player "
+
+            
+            return "success","ok",result;
+
+        except Exception,ex:
+            if conn is not None:
+                conn.close();
+
+            return "error",str(ex),result
+
+    def db_get_player_from_socket_server_by_openid(self, openid):
         '''
             get the player info by openid.
         '''
@@ -405,8 +471,55 @@ class Database:
 
             return "error",str(ex),result
 
-
     def db_get_player_by_id(self, playerid):
+        '''
+            get the player info by openid.
+        '''
+        try:
+            result = []
+            conn = None;
+            ret, db = self.__connect_to_db();
+            ret,conn = self.__create_connection(db);
+
+            # insert project
+            sql = "select id, account, guildID, name, headurl, level, gold, exp, gem, prop, inviter from player2 where player2.id=%s;"  %(playerid-self.player_id_offset)
+            #Factory.logger.debug("[sql]%s" %(sql));
+            print "sql: %s." %(sql)
+            conn.execute(sql);
+
+            dataset = conn.fetchall();
+
+            for row in dataset:
+                result_one = {}
+                result_one['id']      = row[0]+self.player_id_offset
+                result_one['account'] = row[1]
+                result_one['guildID'] = row[2]
+                result_one['name']    = row[3]
+                result_one['head']    = row[4]
+                result_one['level']   = row[5]
+
+                result_one['gold']   = row[6]
+                result_one['exp']    = row[7]
+                result_one['gem']    = row[8]
+                result_one['prop']   = json.loads(row[9])
+                result_one['inviter']    = row[10]  
+
+
+                #print result_one
+                result.append(result_one)
+
+            if conn is not None:
+                conn.close(); 
+            
+            return "success","ok",result;
+
+        except Exception,ex:
+            if conn is not None:
+                conn.close();
+
+            return "error",str(ex),result
+
+    def db_get_player_from_socket_server_by_id(self, playerid):
         '''
             get the player info by openid.
         '''
@@ -455,14 +568,13 @@ class Database:
             return "error",str(ex),result
 
 
-
     def db_update_player_info(self, params):
         '''
             Update player info by params
         '''  
         conn = None 
         try:
-            sql = 'UPDATE player SET '
+            sql = 'UPDATE player2 SET '
             update_cmd = ''
             conn = None
 
@@ -540,7 +652,7 @@ class Database:
         '''  
         conn = None 
         try:
-            sql = 'UPDATE player SET '
+            sql = 'UPDATE player2 SET '
             update_cmd = u""
             conn = None
 
@@ -639,7 +751,7 @@ class Database:
         '''  
         conn = None 
         try:
-            sql = 'UPDATE player SET '
+            sql = 'UPDATE player2 SET '
             update_cmd = ''
             conn = None
 
@@ -1129,7 +1241,7 @@ class Database:
             ret, db = self.__connect_to_db();
             ret,conn = self.__create_connection(db);
 
-            sql = "select count(inviter) from player where inviter=%s;"  %(int(playerid)-self.player_id_offset)
+            sql = "select count(inviter) from player2 where inviter=%s;"  %(int(playerid)-self.player_id_offset)
             
             print "sql: %s." %(sql)
             conn.execute(sql);
