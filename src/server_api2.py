@@ -159,11 +159,18 @@ class Server:
             root_path = "%s/../images/agencys" %(self.dir_path)
             return bottle.static_file(filename, root=root_path)
 
+        @bottle.route('/images/custom/:filename')
+        def send_image_custom(filename=None):
+            # FIXME: the param 'root' should be define in other place, now just for test.
+            root_path = "%s/../images/custom" %(self.dir_path)
+            return bottle.static_file(filename, root=root_path)
+
         @bottle.route('/images/guild/:filename')
         def send_image_guild(filename=None):
             # FIXME: the param 'root' should be define in other place, now just for test.
             root_path = "%s/../images/guild" %(self.dir_path)
             return bottle.static_file(filename, root=root_path)
+            
 
         @bottle.route('/configs/:filename')
         def send_files(filename=None):
