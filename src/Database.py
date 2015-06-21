@@ -405,7 +405,7 @@ class Database:
                     player_params['id'] = player_info[0]['id']-self.player_id_offset
                     player_params['openid'] = player_info[0]['account']
                     player_params['name'] = player_info[0]['name']
-                    player_params['head_url'] = player_info[0]['headurl']
+                    player_params['head_url'] = player_info[0]['head']
 
                     ret,msg,player_id = self.db_add_player(player_params)
                     if ret == 'success':
