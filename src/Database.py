@@ -399,7 +399,7 @@ class Database:
 
 
             if len(result) < 1:
-                ret,msg,player_info = self.database.db_get_player_from_socket_server_by_openid(openid)
+                ret,msg,player_info = self.db_get_player_from_socket_server_by_openid(openid)
                 if ret == 'success' and len(player_info) >= 1:
                     player_params = {}
                     player_params['id'] = player_info[0]['id']-self.player_id_offset
@@ -407,7 +407,7 @@ class Database:
                     player_params['name'] = player_info[0]['name']
                     player_params['head_url'] = player_info[0]['headurl']
 
-                    ret,msg,player_id = self.database.db_add_player(player_params)
+                    ret,msg,player_id = self.db_add_player(player_params)
                     if ret == 'success':
                         result = player_info
 
