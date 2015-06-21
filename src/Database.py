@@ -408,10 +408,9 @@ class Database:
                     player_params['head_url'] = player_info[0]['headurl']
 
                     ret,msg,player_id = self.database.db_add_player(player_params)
-                    if ret != success:
+                    if ret == 'success':
                         result = player_info
-                    elif :
-                        print "add new player "
+
 
             
             return "success","ok",result;
