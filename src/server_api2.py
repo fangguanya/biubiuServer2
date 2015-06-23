@@ -173,9 +173,15 @@ class Server:
             
 
         @bottle.route('/configs/:filename')
-        def send_files(filename=None):
+        def send_configs(filename=None):
             # FIXME: the param 'root' should be define in other place, now just for test.
             root_path = "%s/../files" %(self.dir_path)
+            return bottle.static_file(filename, root=root_path)
+
+        @bottle.route('/doc/:filename')
+        def send_doc(filename=None):
+            # FIXME: the param 'root' should be define in other place, now just for test.
+            root_path = "%s/../doc" %(self.dir_path)
             return bottle.static_file(filename, root=root_path)
 
 
