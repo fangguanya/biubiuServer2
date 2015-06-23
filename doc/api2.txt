@@ -1,15 +1,73 @@
 
-说明：
-该文档是对之前API多了大部分的整理和修改，故称为API2，即第二版API。
-但为了与现有已实现的API兼容，故老的API暂时是兼容的，待前端修改后，再进行老代码删除。
-为了区分新API，在文档中API的url中包含api2的为新API，说明中也用(v2)标识。
+<h1 id="0"> API 手册 </h1>
+
+## 目录
+
+>[1 用户登陆（v2）](#1)
+
+>[2.0 资格验证](#2.0)
+
+>[2.1 创建学团](#2.1)
+
+>[2.2 查找学团](#2.2)
+
+>[2.3 加入学团](#2.3)
+
+>[2.4 创建学团](#2.4)
+
+>[2.5 学团副团长设置（暂时不用）](#2.5)
+
+>[2.6 获取学团信息（返回学团详细信息）](#2.6)
+
+>[2.7 学团解散（可暂不开放）](#2.7)
+
+>[2.8 加入学团审核（会长专用，暂不使用，加满为止）](#2.8)
+
+>[2.9 学团信息设置](#2.9)
+
+>[2.10 获取普通学团头像列表](#2.10)
+
+>[2.11 获取普通学团头像列表](#2.11)
+
+>[3.1 经济物品修改](#3.1)
+
+>[4.1 获取排行榜](#4.1)
+
+>[5.0 获取用户信息](#5.0)
+
+>[5.1 获取用户信息(v2)](#5.1)
+
+>[5.2 更改用户信息(v2)](#5.2)
+
+>[5.3 邀请人认证 ](#5.3)
+
+>[5.4 查询邀请情况 ](#5.4)
 
 
 
-===================
-    用户登陆
-===================
-1. 用户登陆（v2）(目前仅在启动时调用，用来获取id和token, 登录系统仍用老的socket模式)
+
+
+
+
+
+
+>说明：
+
+>该文档是对之前API多了大部分的整理和修改，故称为API2，即第二版API。
+
+>但为了与现有已实现的API兼容，故老的API暂时是兼容的，待前端修改后，再进行老代码删除。
+
+>为了区分新API，在文档中API的url中包含api2的为新API，说明中也用(v2)标识。
+ 
+ 
+ 
+---
+## **用户登陆**
+
+
+<h4 id="1">  1. 用户登陆（v2）(目前仅在启动时调用，用来获取id和token, 登录系统仍用老的socket模式) </h4>
+
+<pre><code>
 [POST] http://ip/api2/qq/login
 {
     "openid"   : "OPENID",
@@ -29,14 +87,18 @@
 "code"  : 返回码，表征操作正确与否及错误原因
 "id"    : 用户ID，用户的唯一标识
 "token" : 用户令牌， 标识用户登陆的有效性
+</code></pre>
 
 
-===================
-    学团相关API
-===================
+---
+## **学团相关API**
 
-0. 资格验证(v1)
-该API作用是验证用户是否有创建学团资格
+
+<h4 id="2.0">  0. 资格验证(v1) </h4>
+
+>该API作用是验证用户是否有创建学团资格
+
+<pre><code>
 [POST] http://ip/api/verify/license
 {
     "license" : "LICENSE_CODE"
@@ -49,9 +111,12 @@
 说明：
 "result"描述操作结果，"success"表示成功，"error"表示失败。
 "logo_url"表示授权对象的logo路径。
+</code></pre>
 
 
-1. 创建学团（v2）
+
+<h4 id="2.1">  1. 创建学团（v2）</h4>
+<pre><code>
 [POST] http://ip/api2/create/guild
 {
     "player" : 123456,              #必选，用户ID
@@ -68,11 +133,16 @@
 }
 说明：
 "player"为用户ID,可以登陆（login）时系统返回
+</code></pre>
 
+> 
+> 
 
-2. 查找学团（附简单信息）
-通过位置或ID等查找
-查找类型： 全部，城市，附近，指定名称，指定ID
+<h4 id="2.2"> 2. 查找学团（附简单信息）</h4>
+
+>通过位置或ID等查找
+>查找类型： 全部，城市，附近，指定名称，指定ID
+<pre><code>
 [POST] http://ip/api/search/guild
 {
     
@@ -109,10 +179,11 @@
         {}
     ]
 }
+</code></pre>
 
 
-
-3. 加入学团（先不限制，学团加满为止）
+<h4 id="2.3">  3. 加入学团（先不限制，学团加满为止） </h4>
+<pre><code>
 [POST] http://ip/api/add/guildmember
 {
     "player" : "PLAYER_ID",          #必选
@@ -122,9 +193,11 @@
 {
     "result": "success"
 }
+</code></pre>
 
+<h4 id="2.4"> 4. 退出学团 </h4>
 
-4. 退出学团
+<pre><code>
 [POST] http://ip/api/quit/guild
 {
     "player": "xxxxx"    #player的openid
@@ -133,14 +206,15 @@
 {
     "result" : "success"
 }
+</code></pre>
+
+<h4 id="2.5"> 5. 学团副团长设置（暂时不用）</h4>
+>限制： 学团有副团长人数限制
 
 
-5. 学团副团长设置（暂时不用）
-限制： 学团有副团长人数限制
 
-
-
-6. 获取学团信息（返回学团详细信息）
+<h4 id="2.6"> 6. 获取学团信息（返回学团详细信息）</h4>
+<pre><code>
 [POST] http://ip/api/get/guild
 {
     "mode" : "guild",        #必选， 根据什么方式获取学团信息，目前支持"guild"（根据学团ID）,"player"（根据用户openid）
@@ -186,9 +260,10 @@
         {}
     ]
 }
+</code></pre>
 
-
-7. 学团解散（可暂不开放）
+<h4 id="2.7"> 7. 学团解散（可暂不开放）</h4>
+<pre><code>
 [POST] http://ip/api/delete/guild
 {
     "player": "xxxxx"   #player的openid(会长才能解散学团)
@@ -197,13 +272,14 @@
 {
     "result" : "success"
 }
+</code></pre>
+
+<h4 id="2.8"> 8. 加入学团审核（会长专用，暂不使用，加满为止）</h4>
 
 
-8. 加入学团审核（会长专用，暂不使用，加满为止）
 
-
-
-9. 学团信息设置
+<h4 id="2.9">  9. 学团信息设置 </h4>
+<pre><code>
 [POST] http://ip/api/update/guild
 {
     "player" : "PLAYER_ID",             #必选  用户openid(会长才有修改权限)
@@ -224,9 +300,10 @@
 {
     "result": "success"
 }
+</code></pre>
 
-
-10. 获取普通学团头像列表(v2)
+<h4 id="2.10"> 10. 获取普通学团头像列表(v2) </h4>
+<pre><code>
 [GET] http://ip/api2/guild/heads
 返回值：
 {
@@ -245,8 +322,10 @@
     ]
 
 }
+</code></pre>
 
-11. 从学团中移除某个学员[未完成]
+<h4 id="2.11"> 11. 从学团中移除某个学员[未完成] </h4>
+<pre><code>
 [POST] http://ip/api2/guild/remove/member
 返回值：
 {
@@ -259,13 +338,14 @@
     "result": "success",
     "code"   : 0
 }
+</code></pre>
 
 
+---
+## **经济相关API**
 
-===================
-    经济相关API
-===================
-1. 经济物品修改API
+<h4 id="3.1"> 1. 经济物品修改API </h4>
+<pre><code>
 [POST] http://ip/api/update/props
 {
     "who" : "player",                   #必选， 需要修改的对象，"player","guild"
@@ -286,14 +366,14 @@
 注意：
 1. 对于经验的增加，学团目前不支持经验增加的方法，学团的经验是随学团成员的经验增加而增加
 2. exp表示经验值，理论上只能增加
+</code></pre>
 
 
+---
+## **排行榜API**
 
-
-===================
-    排行榜API
-===================
-1. 获取排行榜
+<h4 id="4.1"> 1. 获取排行榜 </h4>
+<pre><code>
 [GET] http://ip/api/ranklist/{openid}/{index}
 
 字段说明：
@@ -332,17 +412,15 @@ index: 赛事ID
     ]
 
 }
-
-SELECT player.id,player.name, player.headurl, player.guildId, guild2.name, guild2.head FROM player, guild2 WHERE player.guildId=guild2.id and player.id=147;
-
-select player.name,playerNamebrand.count from player left join playerNamebrand  on (player.id = playerNamebrand.playerId) order by playerNamebrand.count;
+</code></pre>
 
 
 
-===================
-    用户信息API
-===================
-0. 获取用户信息
+---
+## **用户信息API**
+
+<h4 id="5.0"> 0. 获取用户信息 </h4>
+<pre><code>
 [GET] http://ip/api/info/player/{openid} 
 
 字段说明：
@@ -373,8 +451,10 @@ openid：用户的openid
         "modify_cnt": 2345              #用户信息修改次数
     }   
 }
+</code></pre>
 
-1. 获取用户信息(v2)
+<h4 id="5.1"> 1. 获取用户信息(v2) </h4>
+<pre><code>
 [GET] http://ip/api2/info/player/{id} 
 
 字段说明：
@@ -405,18 +485,19 @@ id：用户的id(登陆时返回id值)
         "inviter": 121003               #邀请人ID
     }   
 }
+</code></pre>
 
-
-2. 更改用户信息(v2)
+<h4 id="5.2"> 2. 更改用户信息(v2) </h4>
+<pre><code>
 [POST] http://ip/api2/update/player
 {
-    "id": 123456,                   #用户的ID
+    "id": 123456,                     #用户的ID
     "token" : "xxxxx",
-
+    
     # 基本信息
-    "name":"xxx",                   #player名称
-    "head":"xxx",                   #player头像路径
-
+    "name":"xxx",                     #player名称
+    "head":"xxx",                     #player头像路径
+    
     # 位置信息
 
 }
@@ -424,11 +505,12 @@ id：用户的id(登陆时返回id值)
 {
     "result":"success"
 }
+</code></pre>
 
-
-3. 邀请码操作
-说明：用户使用其他用户分享的邀请码（即其他用户的ID），可以获得一次经济奖励。
-在player表中增加字段"inviter"，用来表示该用户的邀请人（该字段用ID表示）
+<h4 id="5.3"> 3. 邀请人认证 </h4>
+>说明：用户使用其他用户分享的邀请码（即其他用户的ID），可以获得一次经济奖励。
+>在player表中增加字段"inviter"，用来表示该用户的邀请人（该字段用ID表示）
+<pre><code>
 [POST] http://ip/api/add/inviter
 {
     "inviter": 123456,                 #邀请人的ID
@@ -438,10 +520,11 @@ id：用户的id(登陆时返回id值)
 {
     "result":"success"
 }
+</code></pre>
 
-
-4. 查询邀请情况
-说明：该API用来获取用户本人已邀请的用户数量
+<h4 id="5.4"> 4. 查询邀请情况 </h4>
+>说明：该API用来获取用户本人已邀请的用户数量
+<pre><code>
 [GET] http://ip/api/number/inviter/{playerid}
 说明：playerid为用户的biubiu ID，非openid
 返回值：
@@ -449,5 +532,5 @@ id：用户的id(登陆时返回id值)
     "result":"success",
     "number":20
 }
-
+</code></pre>
 
