@@ -63,6 +63,75 @@ class Database:
             print "__escape_tuple error: %s" %(ex)
             return input_tuple
 
+
+    def db_do_update_commond(self, sql=None):
+        '''
+            Update 
+        '''  
+        conn = None 
+        try:
+
+            conn = None
+
+            if sql == None:
+                return "error","sql None"
+
+            print sql
+
+            ret, db = self.__connect_to_db();
+            ret,conn = self.__create_connection(db);
+            ret = conn.execute(sql);
+            
+            db.commit();
+
+            if conn is not None:
+                conn.close(); 
+
+            return "success","ok"
+
+
+        except Exception,ex:
+            if conn is not None:
+                conn.close();
+
+            return "error",str(ex) 
+
+
+    def db_do_select_commond(self, sql=None):
+        '''
+            select
+        '''
+        try:
+            result = []
+            conn = None;
+
+            if sql == None:
+                return "error","sql None",[]
+
+            ret, db = self.__connect_to_db();
+
+            ret,conn = self.__create_connection(db);
+
+            print "sql: %s." %(sql)
+            conn.execute(sql);
+
+            dataset = conn.fetchall();
+
+            if conn is not None:
+                conn.close(); 
+
+            
+            return "success","ok",dataset
+
+        except Exception,ex:
+            if conn is not None:
+                conn.close();
+
+            return "error","not do",None
+
+
+
+
     def db_create_guild(self, params):
         '''
             Create the guild, and return the guild id.
