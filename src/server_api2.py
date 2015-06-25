@@ -76,7 +76,8 @@ class Server:
 
         # init the schools data
         if os.path.exists('juniorschool.json'):
-            self.schools_json = json.load(file('juniorschool.json'))
+            #self.schools_json = json.load(file('juniorschool.json'))
+            self.schools_json = json.load(file('juniorschool_new.json'))
             '''
                 schools_json format:
                 {
@@ -242,12 +243,12 @@ class Server:
                                 if county_code == "" or county_code == county_one['id'][-2:]:
                                     
                                     for school_one in county_one['schoollist']:
-                                        school_json = {}
+                                        #school_json = {}
                                         #FIXME: school id shoud be define
-                                        school_json['id'] = "%s" %(county_one['id'][-6:])
-                                        school_json['name'] = school_one
+                                        #school_json['id'] = "%s" %(county_one['id'][-6:])
+                                        #school_json['name'] = school_one
 
-                                        response['schools'].append(school_json)
+                                        response['schools'].append(school_one)
 
                 response['result'] = 'success'
                 return "%s" %(json.dumps(response))
