@@ -45,7 +45,7 @@ update guildMember2 set playerID=playerID+121000;
 现在API服务器操作时， 会在获取用户ID时增加121000，修改查询操作时减去用户提供的ID值121000。
 
 
-###### 2015.6.17 ######
+###### 2015.6.17 ###### [未做]
 12. 在guild2中增加字段address，该字段主要是描述学团的具体位置信息
 alter table `guild2` add column `address` varchar(128) NOT NULL DEFAULT '';
 
@@ -57,8 +57,9 @@ alter table `guild2` add column `address` varchar(128) NOT NULL DEFAULT '';
 create table player2 select * from player;
 
 
-###### 2015.6.22 ######
+###### 2015.6.22 ###### [未做]
 14. 增加player2用户信息: school_id(学校ID)、term(学期)、grade(年级)
 alter table `player2` add column `school_id` int NOT NULL DEFAULT 0;
 alter table `player2` add column `term` int NOT NULL DEFAULT 0;
 alter table `player2` add column `grade` int NOT NULL DEFAULT 0;
+
