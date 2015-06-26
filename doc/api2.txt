@@ -244,7 +244,7 @@
     "player" : "PLAYER_OPENID",       #可选，若设置，则返回的学团列表中若有该用户所在学团，将被标识出来
 
     #其它可选参数
-    "city_id": 1101,                  #城市ID， "mode"为"city"时的必要参数  (注：暂不支持)
+    "city_id": "1101",                #城市ID， "mode"为"city"时的必要参数  (注：暂不支持)
     "longitude"：122.39592,           #经度， "mode"为"nearby"时的必要参数  (注：暂不支持)
     "latitude" ： 32.44345            #纬度， "mode"为"nearby"时的必要参数  (注：暂不支持) 
 
