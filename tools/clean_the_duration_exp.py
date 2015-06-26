@@ -11,13 +11,14 @@ from src.Database import Database
 
 db = Database()
 
-ret, msg,data = db.db_do_select_commond('select id,account from player2;')
+# cmd: update guild2 set last_exp=exp;
+
+ret, msg = db.db_do_update_commond('update guild2 set last_exp=exp;')
 
 print ret
 print msg
 
-for one in data:
-    print "id:%s, account:%s" %(one[0],one[1])
+
 
 
 

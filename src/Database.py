@@ -237,6 +237,82 @@ class Database:
 
             return "error","not do",None
 
+    def db_search_guild2(self, params):
+        '''
+            Search the guild, and return the guild list.
+        '''
+        try:
+            result = []
+            conn = None;
+            ret, db = self.__connect_to_db();
+
+            ret,conn = self.__create_connection(db);
+
+            sql = "select guild2.id,guild2.name,guild2.head,level,guild2.limit,guild2.number,createrOpenID,exp from guild2 where status!='delete'"
+
+            # where
+            if params.has_key('mode'):
+                if params['mode'] == 'city':
+                    if params.has_key('city_id'):
+                        city_id = str(params['city_id'])
+                        if len(city_id) == 4 or len(city_id) == 6:
+                            sql = "%s and province=%s and city=%s " %(sql, city_id[:2], city_id[2:4])
+            
+
+            # order by
+            if params.has_key('sort_type'):
+                if params['sort_type'] in ['exp', 'level']:
+                    sql = "%s order by %s desc" %(sql, params['sort_type'])
+
+                elif params['sort_type'] == 'duration_exp':
+                    sql = "%s order by exp-last_exp desc" %(sql)
+
+                elif params['sort_type'] == 'id':
+                    sql = "%s order by id " %(sql)
+
+                else:
+                    sql = "%s order by exp " %(sql)
+
+
+            # limit
+            if params.has_key('range_min') and params.has_key('range_max'):
+                if params['range_min'] != 0 and params['range_max'] != 0 and params['range_max'] >= params['range_min']:
+                    sql = "%s limit %s,%s" %(sql, params['range_min']-1, params['range_max']-params['range_min']+1)
+
+            
+            sql = "%s;" %(sql)
+
+            print "sql: %s." %(sql)
+            conn.execute(sql);
+
+            dataset = conn.fetchall();
+
+            for row in dataset:
+                result_one = {}
+                result_one['guild_id'] = row[0]
+                result_one['guild_name'] = row[1]
+                result_one['head'] = row[2]
+                result_one['level'] = row[3]
+                result_one['people_limits'] = row[4]
+                result_one['people_number'] = row[5]
+                result_one['createrOpenID'] = row[6]
+                result_one['exp'] = row[7]
+
+                result_one['if_in_guild'] = 0
+                result.append(result_one)
+
+            if conn is not None:
+                conn.close(); 
+
+            
+            return "success","ok",result;
+
+        except Exception,ex:
+            if conn is not None:
+                conn.close();
+
+            return "error","not do",None
+
 
     def db_get_guild_by_guildID(self, guildID):
         '''

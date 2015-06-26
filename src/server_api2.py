@@ -858,13 +858,16 @@ class Server:
             response = {}
             response['result'] = 'error'
             response['guilds'] = []
-            #response['number'] = 0
+
 
 
             player_openid = ''
             guilds = []
+
+            
+
             try:
-                self.logger.debug('handle a request:/api/searchsearch/guild, ')
+                self.logger.debug('handle a request:/api/search/guild, ')
 
                 # get the data
                 post_data = bottle.request.body.getvalue()
@@ -872,13 +875,14 @@ class Server:
                 '''
                     The data format should be:
                     {
-                        "player" : "PLAYER_ID",
-                        "mode": "",         # support 'all', 'city', 'nearby', 'id', 'name'
+                        
+                        "mode": "all",         # support 'all', 'city', 'nearby', 'id', 'name'
                         "range_min" : 1, 
                         "range_max" : 20,
-                        "sort_type" : "exp", 
+                        "sort_type" : "exp", # support "exp","id","level", "duration_exp"
+                        "player" : "PLAYER_ID",
                         
-                        "city_name" : "",       # for mode 'city'
+                        "city_id"   : "1101",   # for mode 'city'
                         "longitude" : 12.334    # for mode 'nearby'
                         "latitude"  : 23.345    # for mode 'nearby'
                         "guild_id"  : 23        # for mode 'id'
@@ -888,35 +892,77 @@ class Server:
 
                 post_data_json = json.loads(post_data)
 
+                # default parasm
+                params_json = {}
+                params_json['mode']      = 'all'
+                params_json['sort_type'] = 'exp'
+                params_json['range_min']  = 0            # offset should 0
+                params_json['range_max']  = 0
+                params_json['city_id']    = ''           # id set to 'beijing'
+
+
                 # check the params
                 if post_data_json.has_key('mode'):
                     if post_data_json['mode'] not in ['all', 'city', 'nearby', 'id', 'name']:
                         response['result'] = 'error'
                         response['message'] = 'mode:%s not support.' %(post_data_json['mode'])
                         return "%s" %(json.dumps(response)) 
+                    else:
+                        params_json['mode']  = post_data_json['mode']
                 else:
                     response['result'] = 'error'
                     response['message'] = 'need must key:mode.'
                     return "%s" %(json.dumps(response))        
 
-                if post_data_json['mode'] == 'all':
-                    offset = 0
-                    number = 25
-                    if post_data_json.has_key('range_min'):
-                        if isinstance(post_data_json['range_min'],int):
-                            offset = post_data_json['range_min'] - 1
-                    
-                    if post_data_json.has_key('range_max'):
-                        if isinstance(post_data_json['range_max'],int):
-                            number = post_data_json['range_max'] - offset
 
-                    ret,msg,guilds = self.database.db_search_guild(offset, number)
-                #elif 
+                if post_data_json.has_key('sort_type'):
+                    if isinstance(post_data_json['sort_type'],basestring):
+                        if post_data_json['sort_type'] in ['exp', 'id', 'level', 'duration_exp']:
+                            params_json['sort_type'] = post_data_json['sort_type']
+                        else:
+                            response['result'] = 'error'
+                            response['message'] = 'sort_type shoud string type.'
+                            return "%s" %(json.dumps(response))   
 
-                else:
+                if post_data_json.has_key('range_min'):
+                    if isinstance(post_data_json['range_min'],int):
+                        params_json['range_min'] = post_data_json['range_min']
+                    else:
+                        response['result'] = 'error'
+                        response['message'] = 'range_min shoud int type.'
+                        return "%s" %(json.dumps(response))   
+                
+                if post_data_json.has_key('range_max'):
+                    if isinstance(post_data_json['range_max'],int):
+                        params_json['range_max'] = post_data_json['range_max']
+                    else:
+                        response['result'] = 'error'
+                        response['message'] = 'range_max shoud int type.'
+                        return "%s" %(json.dumps(response))   
+
+                if params_json['range_max'] < params_json['range_min']:
                     response['result'] = 'error'
-                    response['message'] = 'mode:%s not support.' %(post_data_json['mode'])
-                    return "%s" %(json.dumps(response))  
+                    response['message'] = 'range_min shoud not bigger than range_max.'
+                    return "%s" %(json.dumps(response))    
+
+
+                if post_data_json.has_key('city_id'):
+                    if isinstance(post_data_json['city_id'],basestring):
+                        params_json['city_id']   = post_data_json['city_id']
+                    else:
+                        response['result'] = 'error'
+                        response['message'] = 'city_id shoud string type.'
+                        return "%s" %(json.dumps(response))   
+
+                self.logger.debug('[/api/search/guild]: database params:%s' %(json.dumps(params_json)))
+
+                # to search the guilds
+                ret,msg,guilds = self.database.db_search_guild2(params_json)
+                if ret != 'success':
+                    response['result'] = 'error'
+                    response['message'] = 'get search guild error:%s.' %(msg)
+                    return "%s" %(json.dumps(response)) 
+
 
 
                 # if has player, check the player if in one guild, if true set the 'if_in_guild' to 'yes'
