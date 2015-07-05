@@ -2124,7 +2124,7 @@ class Server:
                     response['message'] = 'params index error.'
                     return "%s" %(json.dumps(response))   
 
-                if range_min > range_max:
+                if int(range_min) > int(range_max):
                     response['result'] = 'error'
                     response['message'] = 'params error for range_min:%s and range_max:%s.' %(range_min, range_max)
                     return "%s" %(json.dumps(response))   
