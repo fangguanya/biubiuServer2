@@ -37,6 +37,8 @@
 
 >[4.1 获取排行榜](#4.1)
 
+>[4.2 获取排行榜(v2)](#4.2)
+
 >[5.0 获取用户信息](#5.0)
 
 >[5.1 获取用户信息(v2)](#5.1)
@@ -498,6 +500,67 @@ index: 赛事ID
             "isplayer":0 
         },{}
     ]
+
+}
+</code></pre>
+
+
+<h4 id="4.2"> 2. 获取排行榜(v2) </h4>
+<pre><code>
+[GET] http://ip/api2/ranklist/{openid}/{index}/{range_min}/{range_max}
+
+字段说明：
+openid：用户的openid
+index: 赛事ID
+range_min : 自定义排行范围查询，下限范围
+range_max : 自定义排行范围查询，上限范围
+
+返回值：
+{
+    "result": "success",                    #操作是否成功，"success" or "error"
+    "index": 99999,                         #赛事索引
+
+    "first":[                               #前三名信息
+        {
+            "name":"xxx",                   #player名称
+            "head":"xxx",                   #player头像路径
+            "guild_id": 20,                 #player所属学团，0表示没有学团
+            "guild_name": "xxx",            #学团名称
+            "guild_head": "xxx",            #学团头像路径
+            "ranking":1,                    #排名
+            "count": 23,                    #积分（名牌数）
+            "isplayer":0                    #是否是当前调用者
+        },{}   
+    ],
+
+    "ranklist": [                           #排行榜信息，返回调用者周围11人信息
+        {
+            "name":"xxx",
+            "head":"xxx",
+            "guild_id": 20,
+            "guild_name": "xxx",
+            "guild_head": "xxx",
+            "ranking":1,
+            "count":22,
+            "isplayer":0 
+        },{}
+    ],
+    
+
+    "search_range": [                        #自定义排行范围查询信息，返回调用者设定范围的用户排行信息
+        {
+            "name":"xxx",
+            "head":"xxx",
+            "guild_id": 20,
+            "guild_name": "xxx",
+            "guild_head": "xxx",
+            "ranking":1,
+            "count":22,
+            "isplayer":0 
+        },{}
+    ]
+
+
 
 }
 </code></pre>
