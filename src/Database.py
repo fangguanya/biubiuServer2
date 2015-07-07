@@ -1375,6 +1375,42 @@ class Database:
             return "error",str(ex),result
 
 
+    def db_get_ranking_members_number(self, index):
+        '''
+            get the ranklist members number
+        '''
+        try:
+            result = []
+            count = 0
+            conn = None;
+            ret, db = self.__connect_to_db();
+            ret,conn = self.__create_connection(db);
+
+
+            # insert project
+            sql = "select count(id) from playerNamebrand where playerNamebrand.index=%s;"  %(index)
+            #Factory.logger.debug("[sql]%s" %(sql));
+            print "sql: %s." %(sql)
+            conn.execute(sql);
+
+            dataset = conn.fetchall();
+
+            for row in dataset:
+                count = row[0]
+
+            if conn is not None:
+                conn.close(); 
+            
+            return "success","ok",count;
+
+        except Exception,ex:
+            if conn is not None:
+                conn.close();
+
+            return "error",str(ex),count
+
+
+
     def db_get_number_of_inviters(self, playerid):
         '''
             get the number of inviter.

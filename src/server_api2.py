@@ -2344,6 +2344,39 @@ class Server:
                 return "%s" %(json.dumps(response)) 
 
 
+        @bottle.route('/api2/ranklist/numbers/:index')
+        def api2_get_ranklist_numbers(index=None):
+            response = {}
+            response['result']  = 'error'
+
+            try:
+                self.logger.debug('handle a request: /api2/ranklist/numbers/:index')   
+                self.logger.debug('index:%s.' %(index))   
+                # check the params
+                if index == None:
+                    response['result'] = 'error'
+                    response['message'] = 'params index error.'
+                    return "%s" %(json.dumps(response))   
+
+                response['index'] = int(index)
+
+                ret,msg, count = self.database.db_get_ranking_members_number(index)
+
+
+
+                response['result']  = ret
+                response['numbers'] = count
+                response['message'] = msg
+                return "%s" %(json.dumps(response)) 
+
+            except Exception,ex:
+                response = {}
+                response['result'] = 'error'
+                response['message'] = '%s' %(str(ex))
+                return "%s" %(json.dumps(response)) 
+
+
+
         @bottle.route('/api/info/player/:playerid')
         def api_get_player_detal_info(playerid=None):
             response = {}
