@@ -191,7 +191,24 @@ class Server:
         #################
         @bottle.route('/api/gettime')
         def gettime():
-            return "%s" %(datetime.now())
+            response = {}
+
+            try:
+
+                response['result'] = 'error'
+                response['unix_time'] = int(time.time())
+                response['datetime_str'] = str(datetime.now())
+
+
+                response['result'] = 'success'
+                return "%s" %(json.dumps(response))
+
+            except Exception,ex: 
+                response['result'] = 'error'
+                response['message'] = "error:%s" %(ex)
+                return "%s" %(json.dumps(response))
+
+
 
         @bottle.route('/api/get/schools/:number')
         def api_get_schools(number=None):
