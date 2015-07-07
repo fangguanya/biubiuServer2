@@ -2237,7 +2237,7 @@ class Server:
                     response['message'] = 'there is no index:%s.' %(index)
                     return "%s" %(json.dumps(response)) 
 
-                self.logger.debug('Get ranklist firsts player info: %s.' %(json.dumps(around_player_info)))
+                self.logger.debug('Get ranklist around players info: %s.' %(json.dumps(around_player_info)))
                 response['ranklist'] = []
                 member_cnt = ranklist_offset
                 for around_player_info_one in around_player_info:
@@ -2305,15 +2305,18 @@ class Server:
                         ranklist_member_one['name'] = member_info[0]['name']
                         ranklist_member_one['head'] = member_info[0]['head']
                         ranklist_member_one['guild_id'] = member_info[0]['guildID']
+
+                        if member_info[0]['account'] == player:
+                            ranklist_member_one['isplayer'] = 1
+                        else:
+                            ranklist_member_one['isplayer'] = 0
+
                     else:
                         ranklist_member_one['name'] = ""
                         ranklist_member_one['head'] = ""
                         ranklist_member_one['guild_id'] = 0
 
-                    if member_info[0]['account'] == player:
-                        ranklist_member_one['isplayer'] = 1
-                    else:
-                        ranklist_member_one['isplayer'] = 0
+
 
                     member_cnt += 1
                     ranklist_member_one['ranking'] = member_cnt
