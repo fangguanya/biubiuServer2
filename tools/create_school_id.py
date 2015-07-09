@@ -37,6 +37,6 @@ for city_one in schools_json['schools']:
 
     schools_json_new['schools'].append(city_one_new)
 
-json.dump(schools_json_new, file('juniorschool_new.json','w'))
+json.dump(schools_json_new, file('juniorschool_new.json','w'),ensure_ascii=False)
 
 
