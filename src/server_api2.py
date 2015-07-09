@@ -2385,7 +2385,7 @@ class Server:
 
 
                 response['result']  = ret
-                response['numbers'] = int(count) + 918
+                response['numbers'] = int(count)*3/2
                 response['message'] = msg
                 return "%s" %(json.dumps(response)) 
 
