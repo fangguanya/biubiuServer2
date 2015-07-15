@@ -2606,6 +2606,24 @@ class Server:
 
                     # if the player has not been invited, add the inviter
                     if player_info[0]['inviter'] == 0:
+
+                        # get the inviter info
+                        ret,msg,inviter_info = self.database.db_get_player_by_id(post_data_json['inviter'])
+                        if ret != 'success':
+                            response['result'] = 'error'
+                            response['message'] = 'get inviter error:%s.' %(msg)
+                            return "%s" %(json.dumps(response)) 
+
+                        if len(inviter_info) < 1:
+                            response['result'] = 'error'
+                            response['message'] = 'there is no inviter for id:%s.' %(post_data_json['inviter'])
+                            return "%s" %(json.dumps(response)) 
+
+                        if int(post_data_json['inviter']) == int(player_info[0]['id']):
+                            response['result'] = 'error'
+                            response['message'] = 'the inviter should not be same with the player.'
+                            return "%s" %(json.dumps(response)) 
+
                         update_player_params = {}
                         update_player_params['player_openid'] = post_data_json['player']
                         update_player_params['inviter'] = post_data_json['inviter']
