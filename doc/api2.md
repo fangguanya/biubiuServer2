@@ -227,13 +227,13 @@
 "player"为QQ返回的openID
 </code></pre>
 
-> 
-> 
+
 
 <h4 id="2.2"> 2. 查找学团（附简单信息）</h4>
 
 >通过位置或ID等查找
 >查找类型： 全部，城市，附近，指定名称，指定ID
+
 <pre><code>
 [POST] http://ip/api/search/guild
 {
@@ -678,6 +678,7 @@ id：用户的id(登陆时返回id值)
 <h4 id="5.3"> 3. 邀请人认证 </h4>
 >说明：用户使用其他用户分享的邀请码（即其他用户的ID），可以获得一次经济奖励。
 >在player表中增加字段"inviter"，用来表示该用户的邀请人（该字段用ID表示）
+
 <pre><code>
 [POST] http://ip/api/add/inviter
 {
@@ -692,6 +693,7 @@ id：用户的id(登陆时返回id值)
 
 <h4 id="5.4"> 4. 查询邀请情况 </h4>
 >说明：该API用来获取用户本人已邀请的用户数量
+
 <pre><code>
 [GET] http://ip/api/number/inviter/{playerid}
 说明：playerid为用户的biubiu ID，非openid

@@ -1488,6 +1488,17 @@ class Server:
                 response['message'] = '%s' %(str(ex))
                 return "%s" %(json.dumps(response)) 
 
+        @bottle.route('/api/guild/heads')
+        def api2_get_normal_guild_heads():
+
+            response = {}
+            response['result'] = 'success'
+            response['code']   = Code.ERROR_CODE_OK
+            response['heads']  = self.normal_guild_heads
+
+            return "%s" %(json.dumps(response))
+
+
         @bottle.route('/api2/guild/heads')
         def api2_get_normal_guild_heads():
 
