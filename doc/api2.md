@@ -211,6 +211,7 @@
 
 
 <h4 id="2.1">  1. 创建学团 </h4>
+
 <pre><code>
 [POST] http://ip/api/create/guild
 {

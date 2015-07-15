@@ -325,7 +325,7 @@ class Database:
             
             ret,conn = self.__create_connection(db);
             
-            sql = "select id,name,head,level,createTime,createrID,createrOpenID,exp,gold,gem,prop,province,city,county,longitude,latitude,guild2.limit,guild2.number from guild2 where guild2.id=%s;" \
+            sql = "select id,name,head,level,createTime,createrID,createrOpenID,exp,gold,gem,prop,province,city,county,longitude,latitude,guild2.limit,guild2.number,address from guild2 where guild2.id=%s;" \
                 %(guildID)
 
             print "sql: %s." %(sql)
@@ -353,6 +353,7 @@ class Database:
                 result_one['latitude'] = row[15]
                 result_one['people_limits'] = row[16]
                 result_one['people_number'] = row[17]
+                result_one['address'] = row[18]
               
                 result.append(result_one)
 
