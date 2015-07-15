@@ -17,7 +17,7 @@
 
 >[2.3 加入学团](#2.3)
 
->[2.4 创建学团](#2.4)
+>[2.4 退出学团](#2.4)
 
 >[2.5 学团副团长设置（暂时不用）](#2.5)
 
@@ -210,24 +210,21 @@
 
 
 
-<h4 id="2.1">  1. 创建学团（v2）</h4>
+<h4 id="2.1">  1. 创建学团 </h4>
 <pre><code>
-[POST] http://ip/api2/create/guild
+[POST] http://ip/api/create/guild
 {
-    "player" : 123456,              #必选，用户ID
-    "token"  : "xxxxxxxxx",         #必选，用户令牌， 标识用户登陆的有效性
-    "license": "LICENSE_CODE",      #必选，授权码
-    "name" : "NAME"                 #必选，学团名称         
+    "player" : "PLAYER_ID",             #必选，用户openID
+    "license": "LICENSE_CODE",          #必选，授权码
+    "name"   : "NAME"                   #必选，学团名称            
 }
 返回值：
 {
     "result" : "success", 
-    "code"   : 0,
-    "id"     : 100，                #学团ID
-    "logo_url" : "xxxx"             #学团头像路径
+    "id" : 100                          #学团ID
 }
 说明：
-"player"为用户ID,可以登陆（login）时系统返回
+"player"为QQ返回的openID
 </code></pre>
 
 > 
