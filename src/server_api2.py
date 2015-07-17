@@ -1535,7 +1535,7 @@ class Server:
 
                 # check player has if or not join guild.
                 if player_info[0]['guildID'] <= 0:
-                    response['result'] = 'success'
+                    response['result'] = 'error'
                     response['message'] = 'player:%s not in any guild.' %(post_data_json['older'])
                     return "%s" %(json.dumps(response)) 
 
@@ -1559,7 +1559,7 @@ class Server:
                 # if the player is not the guild creater, return error
                 if  post_data_json['older'] !=  guild_info[0]['createrOpenID']:
                     response['result'] = 'error'
-                    response['message'] = 'The player:%s is not guild guild creater, can not to delete the guild.' %(post_data_json['older'])
+                    response['message'] = 'The player:%s is not guild guild creater, can not to change the guild leader.' %(post_data_json['older'])
                     return "%s" %(json.dumps(response)) 
 
                 # get the newer player info, and he must be the guild member
@@ -1579,13 +1579,13 @@ class Server:
 
                 # check player has if or not join guild.
                 if player_info2[0]['guildID'] <= 0:
-                    response['result'] = 'success'
+                    response['result'] = 'error'
                     response['message'] = 'player:%s not in any guild.' %(post_data_json['newer'])
                     return "%s" %(json.dumps(response)) 
 
                 # check the newer in the same guild
                 if player_info2[0]['guildID'] != player_info[0]['guildID']:
-                    response['result'] = 'success'
+                    response['result'] = 'error'
                     response['message'] = 'older and newer not in same guild.'
                     return "%s" %(json.dumps(response)) 
 

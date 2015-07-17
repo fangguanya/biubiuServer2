@@ -415,7 +415,7 @@
 }
 </code></pre>
 
-<h4 id="2.11"> 11. 会长禅让（会长专用）[未完成] </h4>
+<h4 id="2.11"> 11. 会长禅让（会长专用）  </h4>
 <pre><code>
 [POST] http://ip/api/guild/change/leader
 返回值：
@@ -426,7 +426,7 @@
 返回值：
 {
     "result": "success",
-    "code"   : 0
+    "message"   : "xxx"
 }
 </code></pre>
 
