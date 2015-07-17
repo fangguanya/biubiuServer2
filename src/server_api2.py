@@ -1247,6 +1247,7 @@ class Server:
                         member_one['name']  = player_info[0]['name']
                         member_one['head']  = player_info[0]['head']
                         member_one['level'] = player_info[0]['level']
+                        member_one['id']    = player_info[0]['id']
 
                     if member_one['openid'] == guild_info[0]['createrOpenID']:
                         member_one['iscreater'] = 1
