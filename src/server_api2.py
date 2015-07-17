@@ -1378,7 +1378,6 @@ class Server:
                 response['message'] = '%s' %(str(ex))
                 return "%s" %(json.dumps(response)) 
 
-
         @bottle.route('/api/delete/guild', method="POST")
         def api_delete_guild():
             response = {}
@@ -1482,6 +1481,127 @@ class Server:
 
 
                 response['result'] = "success"
+                return "%s" %(json.dumps(response)) 
+            except Exception,ex:
+                response = {}
+                response['result'] = 'error'
+                response['message'] = '%s' %(str(ex))
+                return "%s" %(json.dumps(response)) 
+
+        @bottle.route('/api/guild/change/leader', method="POST")
+        def api_guild_change_leader():
+            response = {}
+            response['result'] = 'error'
+
+            try:
+                self.logger.debug('handle a request: /api/guild/change/leader ')   
+                # get the data
+                post_data = bottle.request.body.getvalue()
+                self.logger.debug('handle the request data: %s' %(post_data))
+
+                '''
+                    post data format:
+                    {
+                        "older"  : "xxxxx", 
+                        "newer"  : "xxxxx" 
+                    }
+                '''
+                post_data_json = json.loads(post_data)
+
+
+                # check must key
+                if not post_data_json.has_key('older'):
+                    response['result'] = 'error'
+                    response['message'] = 'need param: older.'
+                    return "%s" %(json.dumps(response)) 
+                if not post_data_json.has_key('newer'):
+                    response['result'] = 'error'
+                    response['message'] = 'need param: newer.'
+                    return "%s" %(json.dumps(response)) 
+
+                # get the player info
+                ret,msg,player_info = self.database.db_get_player_by_openid(post_data_json['older'])
+                if ret != 'success':
+                    response['result'] = 'error'
+                    response['message'] = 'get player error:%s.' %(msg)
+                    return "%s" %(json.dumps(response)) 
+
+                if len(player_info) < 1:
+                    response['result'] = 'error'
+                    response['message'] = 'there is no player for id:%s.' %(post_data_json['older'])
+                    return "%s" %(json.dumps(response)) 
+
+                self.logger.debug('Get guild now leader player info: %s.' %(json.dumps(player_info)))
+
+                # check player has if or not join guild.
+                if player_info[0]['guildID'] <= 0:
+                    response['result'] = 'success'
+                    response['message'] = 'player:%s not in any guild.' %(post_data_json['older'])
+                    return "%s" %(json.dumps(response)) 
+
+
+                post_data_json['guild_id'] = player_info[0]['guildID']
+                # check the guild 
+                ret,msg,guild_info = self.database.db_get_guild_by_guildID(post_data_json['guild_id'])
+                if ret != 'success':
+                    response['result'] = 'error'
+                    response['message'] = 'get guild info error:%s.' %(msg)
+                    return "%s" %(json.dumps(response)) 
+
+                if len(guild_info) < 1:
+                    response['result'] = 'error'
+                    response['message'] = 'there is no guild for id:%s.' %(post_data_json['guild_id'])
+                    return "%s" %(json.dumps(response)) 
+
+                self.logger.debug('Get guild info: %s.' %(json.dumps(guild_info)))
+
+
+                # if the player is not the guild creater, return error
+                if  post_data_json['older'] !=  guild_info[0]['createrOpenID']:
+                    response['result'] = 'error'
+                    response['message'] = 'The player:%s is not guild guild creater, can not to delete the guild.' %(post_data_json['older'])
+                    return "%s" %(json.dumps(response)) 
+
+                # get the newer player info, and he must be the guild member
+                # get the player info
+                ret,msg,player_info2 = self.database.db_get_player_by_openid(post_data_json['newer'])
+                if ret != 'success':
+                    response['result'] = 'error'
+                    response['message'] = 'get player error:%s.' %(msg)
+                    return "%s" %(json.dumps(response)) 
+
+                if len(player_info2) < 1:
+                    response['result'] = 'error'
+                    response['message'] = 'there is no player for id:%s.' %(post_data_json['newer'])
+                    return "%s" %(json.dumps(response)) 
+
+                self.logger.debug('Get guild feature leader player info: %s.' %(json.dumps(player_info2)))
+
+                # check player has if or not join guild.
+                if player_info2[0]['guildID'] <= 0:
+                    response['result'] = 'success'
+                    response['message'] = 'player:%s not in any guild.' %(post_data_json['newer'])
+                    return "%s" %(json.dumps(response)) 
+
+                # check the newer in the same guild
+                if player_info2[0]['guildID'] != player_info[0]['guildID']:
+                    response['result'] = 'success'
+                    response['message'] = 'older and newer not in same guild.'
+                    return "%s" %(json.dumps(response)) 
+
+                # change the leader
+                # update the guild info
+                update_guild_params = {}
+                update_guild_params['guild_id'] = guild_info[0]['guild_id']
+                update_guild_params['createrOpenID'] = post_data_json['newer']
+                ret,msg = self.database.db_update_guild_info(update_guild_params)
+                if ret != 'success':
+                    response['result'] = 'error'
+                    response['message'] = 'update the number to guild error:%s.' %(msg)
+                    return "%s" %(json.dumps(response)) 
+
+                response['message'] = "success"
+                response['result']  = "success"
                 return "%s" %(json.dumps(response)) 
             except Exception,ex:
                 response = {}

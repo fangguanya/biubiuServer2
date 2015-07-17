@@ -389,6 +389,9 @@ class Database:
             if  params.has_key('headID'):
                 update_cmd = "%s headID=%s," %(update_cmd, params['headID'])
 
+            if  params.has_key('createrOpenID'):
+                update_cmd = "%s createrOpenID='%s'," %(update_cmd, params['createrOpenID'])
+
             if  params.has_key('province'):
                 update_cmd = "%s province=%s," %(update_cmd, params['province'])
 
