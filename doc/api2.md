@@ -242,7 +242,15 @@
     "mode" : "all",                   #必选，选择范围"all","city", "nearby" (注:目前只支持"all")
     "range_min" : 1,                  #可选，期望获取学团信息的数量范围
     "range_max" : 20,                 #可选，期望获取学团信息的数量范围
-    "sort_type" : "exp",              #可选，默认"exp", 支持类型"id"(按学团id号), "level"(按学团等级),"exp"(按学团经验), "duration_exp"(按学团近期一段时间经验)  (注：目前只支持"exp","duration_exp")
+    "sort_type" : "exp",              #可选，默认"exp", 支持类型:
+                                      #      "id"           : 按学团id号排行, 
+                                      #      "level"        : 按学团等级,
+                                      #      "exp"          : 按学团经验(默认), 
+                                      #      "duration_exp" : 按学团近期一段时间经验,
+                                      #      "gold"         : 按学团金币排行, 
+                                      #      "number"       : 按学团人数排行,
+                                      #      "members_exp"  : 按学团成员的贡献值总和排行
+
     "player" : "PLAYER_OPENID",       #可选，若设置，则返回的学团列表中若有该用户所在学团，将被标识出来
 
     #其它可选参数

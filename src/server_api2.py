@@ -934,12 +934,16 @@ class Server:
 
                 if post_data_json.has_key('sort_type'):
                     if isinstance(post_data_json['sort_type'],basestring):
-                        if post_data_json['sort_type'] in ['exp', 'id', 'level', 'duration_exp']:
+                        if post_data_json['sort_type'] in ['exp', 'id', 'level', 'duration_exp','gold','number','members_exp']:
                             params_json['sort_type'] = post_data_json['sort_type']
                         else:
                             response['result'] = 'error'
-                            response['message'] = 'sort_type shoud string type.'
+                            response['message'] = 'sort_type:%s not support.'
                             return "%s" %(json.dumps(response))   
+                    else:
+                        response['result'] = 'error'
+                        response['message'] = 'sort_type shoud string type.'
+                        return "%s" %(json.dumps(response))      
 
                 if post_data_json.has_key('range_min'):
                     if isinstance(post_data_json['range_min'],int):
