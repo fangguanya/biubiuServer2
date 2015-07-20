@@ -248,7 +248,11 @@ class Database:
 
             ret,conn = self.__create_connection(db);
 
-            sql = "select guild2.id,guild2.name,guild2.head,level,guild2.limit,guild2.number,createrOpenID,exp from guild2 where status!='delete'"
+            select_string = "id,name,head,level,guild2.limit,guild2.number,createrOpenID,exp"
+            if params.has_key('sort_type'):
+                if params['sort_type'] == 'members_exp':
+                    select_string = "%s,(select sum(exp) from guildMember2 where guildID=guild2.id and status='active') as members_exp " %(select_string)
+            sql = "select %s from guild2 where status!='delete'" %(select_string)
 
             # where
             if params.has_key('mode'):
@@ -261,7 +265,7 @@ class Database:
 
             # order by
             if params.has_key('sort_type'):
-                if params['sort_type'] in ['exp', 'level']:
+                if params['sort_type'] in ['exp', 'level', 'gold', 'number', 'members_exp']:
                     sql = "%s order by %s desc" %(sql, params['sort_type'])
 
                 elif params['sort_type'] == 'duration_exp':
