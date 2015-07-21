@@ -1,0 +1,10 @@
+{
+    "version": "1.0",
+    "agencys":[
+    {"name":"慧智教育", "logo":"1_huizhijiaoyu.png", "url":"/images/agencys/1_huizhijiaoyu.png"},
+    {"name":"众和教育", "logo":"2_zhonghejiaoyu.png", "url":"/images/agencys/2_zhonghejiaoyu.png"},
+    {"name":"宽高教育", "logo":"3_kuangaojiaoyu.png", "url":"/images/agencys/3_kuangaojiaoyu.png"},
+    {"name":"优优一对一", "logo":"4_youyou1v1.png", "url":"/images/agencys/4_youyou1v1.png"},
+    {"name":"优胜教育", "logo":"youshengjiaoyu.jpg", "url":"/images/agencys/youshengjiaoyu.jpg"}
+    ]
+}  
