@@ -239,7 +239,9 @@
 [POST] http://ip/api/search/guild
 {
     
-    "mode" : "all",                   #必选，选择范围"all","city", "nearby" (注:目前只支持"all")
+    "mode" : "all",                   #必选，选择范围"all","org","city", "nearby" (注:目前只支持"all","org")
+                                      #      "all" : 学团范围全世界
+                                      #      "org" : 学团范围同一机构
     "range_min" : 1,                  #可选，期望获取学团信息的数量范围
     "range_max" : 20,                 #可选，期望获取学团信息的数量范围
     "sort_type" : "exp",              #可选，默认"exp", 支持类型:
@@ -251,7 +253,7 @@
                                       #      "number"       : 按学团人数排行,
                                       #      "members_exp"  : 按学团成员的贡献值总和排行
 
-    "player" : "PLAYER_OPENID",       #可选，若设置，则返回的学团列表中若有该用户所在学团，将被标识出来
+    "player" : "PLAYER_OPENID",       #必选，若用户加入学团，则返回的学团列表中若有该用户所在学团，将被标识出来
 
     #其它可选参数
     "city_id": "1101",                #城市ID， "mode"为"city"时的必要参数  (注：暂不支持)

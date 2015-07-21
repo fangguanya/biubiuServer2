@@ -261,6 +261,9 @@ class Database:
                         city_id = str(params['city_id'])
                         if len(city_id) == 4 or len(city_id) == 6:
                             sql = "%s and province=%s and city=%s " %(sql, city_id[:2], city_id[2:4])
+
+            if params.has_key('head'):
+                sql = "%s and head='%s' " %(sql, params['head'])
             
 
             # order by

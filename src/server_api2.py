@@ -920,7 +920,7 @@ class Server:
 
                 # check the params
                 if post_data_json.has_key('mode'):
-                    if post_data_json['mode'] not in ['all', 'city', 'nearby', 'id', 'name']:
+                    if post_data_json['mode'] not in ['all', 'city', 'nearby', 'id', 'name', 'org']:
                         response['result'] = 'error'
                         response['message'] = 'mode:%s not support.' %(post_data_json['mode'])
                         return "%s" %(json.dumps(response)) 
@@ -975,6 +975,35 @@ class Server:
                         response['message'] = 'city_id shoud string type.'
                         return "%s" %(json.dumps(response))   
 
+                player_info = []
+                if post_data_json.has_key('player'):
+                    # get player info 
+                    ret,msg,player_info = self.database.db_get_player_by_openid(post_data_json['player'])
+                    if ret != 'success':
+                        response['result'] = 'error'
+                        response['message'] = 'get player error:%s.' %(msg)
+                        return "%s" %(json.dumps(response)) 
+
+                    if  post_data_json['mode'] == 'org':
+                        ### get the player's guild info, and get the head info
+
+                        if len(player_info) >= 1:
+                            # get guild info
+                            ret,msg,guild_info = self.database.db_get_guild_by_guildID(player_info[0]['guildID'])
+                            if ret == 'success':
+                                if len(guild_info) >= 1:
+                                    params_json['head'] = guild_info[0]['head']
+                                else:
+                                    params_json['head'] = '/images/agency/teamnxxt.png'  
+                            else:
+                                params_json['head'] = '/images/agency/teamnxxt.png'
+
+                        else:
+                            # set the default head
+                            params_json['head'] = '/images/agency/teamnxxt.png'
+
+
+
                 self.logger.debug('[/api/search/guild]: database params:%s' %(json.dumps(params_json)))
 
                 # to search the guilds
@@ -987,25 +1016,17 @@ class Server:
 
 
                 # if has player, check the player if in one guild, if true set the 'if_in_guild' to 'yes'
-                if post_data_json.has_key('player'):
-                    # get player info 
-                    ret,msg,player_info = self.database.db_get_player_by_openid(post_data_json['player'])
-                    if ret != 'success':
-                        response['result'] = 'error'
-                        response['message'] = 'get player error:%s.' %(msg)
-                        return "%s" %(json.dumps(response)) 
+                if len(player_info) >= 1:
+                    self.logger.debug('Get player info: %s.' %(json.dumps(player_info)))
 
-                    if len(player_info) >= 1:
-                        self.logger.debug('Get player info: %s.' %(json.dumps(player_info)))
+                    if player_info[0]['guildID'] > 0:
 
-                        if player_info[0]['guildID'] > 0:
+                        for guild_one in guilds:
+                            if player_info[0]['guildID'] == guild_one['guild_id']:
+                                guild_one['if_in_guild'] = 1
 
-                            for guild_one in guilds:
-                                if player_info[0]['guildID'] == guild_one['guild_id']:
-                                    guild_one['if_in_guild'] = 1
-
-                                if post_data_json['player'] == guild_one['createrOpenID']:
-                                    guild_one['if_in_guild'] = 2
+                            if post_data_json['player'] == guild_one['createrOpenID']:
+                                guild_one['if_in_guild'] = 2
 
 
 
