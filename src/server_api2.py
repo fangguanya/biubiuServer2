@@ -109,6 +109,18 @@ class Server:
         else:
             self.schools_json = {}
 
+        # init the agencys data
+        self.agencys_json = json.load(file('agencys.json'))
+        '''
+            agencys.json format:
+            {
+                "version": "1.0",
+                "agencys":[
+                {"name":"慧智教育", "logo":"1_huizhijiaoyu.png", "url":"/images/agencys/1_huizhijiaoyu.png"},
+                {"name":"众和教育", "logo":"2_zhonghejiaoyu.png", "url":"/images/agencys/2_zhonghejiaoyu.png"}
+                ]
+            }
+        '''
 
         self.normal_guild_heads = [
             {"id":1,  "head":"/images/guild/1.png"},
@@ -1633,6 +1645,26 @@ class Server:
                 response['result'] = 'error'
                 response['message'] = '%s' %(str(ex))
                 return "%s" %(json.dumps(response)) 
+
+        @bottle.route('/api/guild/isagency/:guild_id')
+        def api_guild_isagency(guild_id=None):
+
+            response = {}
+            response['result'] = 'no'
+
+            if guild_id != None:
+                ret,msg,guild_info = self.database.db_get_guild_by_guildID(guild_id)
+                if ret == 'success' and len(guild_info) > 0 :
+                    guild_head = guild_info[0]['head']
+
+                    for agency_one in self.agencys_json['agencys']:
+                        if guild_head == agency_one['url']:
+                            response['result'] = 'yes'
+                            break
+
+
+            return "%s" %(json.dumps(response))
+
 
         @bottle.route('/api/guild/heads')
         def api_get_normal_guild_heads():

@@ -33,6 +33,8 @@
 
 >[2.11 会长禅让（会长专用）](#2.11)
 
+>[2.12 判断该学团是否是机构学团 ](#2.12)
+
 >[3.1 经济物品修改](#3.1)
 
 >[4.1 获取排行榜](#4.1)
@@ -428,7 +430,6 @@
 <h4 id="2.11"> 11. 会长禅让（会长专用）  </h4>
 <pre><code>
 [POST] http://ip/api/guild/change/leader
-返回值：
 {
     "older"  : "xxxxx",                  #必选，会长openID(会长才有修改权限)
     "newer"  : "xxxxx"                   #必选，新会长openID（需为该学团成员）
@@ -438,6 +439,18 @@
     "result": "success",
     "message"   : "xxx"
 }
+</code></pre>
+
+
+<h4 id="2.12"> 12. 判断学团是否是机构学团  </h4>
+<pre><code>
+[GET] http://ip/api/guild/isagency/{guild_id}
+返回值：
+{
+    "result"   : "yes"           # 是否是机构学团，"yes":是，"no":不是
+}
+注：
+{guild_id}：学团ID
 </code></pre>
 
 
