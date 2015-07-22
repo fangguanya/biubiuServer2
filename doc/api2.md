@@ -487,11 +487,16 @@
 
 <h4 id="4.1"> 1. 获取排行榜 </h4>
 <pre><code>
-[GET] http://ip/api/ranklist/{openid}/{index}
-
-字段说明：
-openid：用户的openid
-index: 赛事ID
+[POST] http://ip/api/match/ranklist
+{
+    "player": "xxx",                        # 必选, 用户的openid
+    "index": 9999999,                       # 必选, 赛事ID
+    "range_min": 1,                         # 可选, 自定义排行选取范围下限，默认：1
+    "range_max": 10,                        # 可选, 自定义排行选取范围上限，默认：10
+    "sort_type": "exp"                      # 可选, 排行方式，支持的排行方式："exp", "success"， 默认:"exp"
+                                            #       "exp": 按经验排行
+                                            #       "success" : 按胜利场数排行
+}
 
 返回值：
 {
@@ -506,7 +511,8 @@ index: 赛事ID
             "guild_name": "xxx",            #学团名称
             "guild_head": "xxx",            #学团头像路径
             "ranking":1,                    #排名
-            "count": 23,                    #积分（名牌数）
+            "count": 23,                    #积分（经验）
+            "success" : 10,                 #胜场数
             "isplayer":0                    #是否是当前调用者
         },{}   
     ],
@@ -520,6 +526,7 @@ index: 赛事ID
             "guild_head": "xxx",
             "ranking":1,
             "count":22,
+            "success" : 9,
             "isplayer":0 
         },{}
     ]

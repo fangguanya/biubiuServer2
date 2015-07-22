@@ -2552,6 +2552,292 @@ class Server:
                 response['message'] = '%s' %(str(ex))
                 return "%s" %(json.dumps(response)) 
 
+        @bottle.route('/api/match/ranklist', method="POST")
+        def api_get_match_ranklist():
+            response = {}
+            response['result']  = 'error'
+
+            player=None
+            index=None
+            range_min=1
+            range_max=10
+            sort_type = "exp"
+
+            guild_id = None
+            try:
+                self.logger.debug('handle a request: /api/match/ranklist')   
+
+                # get post data
+                post_data = bottle.request.body.getvalue()
+                self.logger.debug('handle the request date type:%s, data: %s' %(type(post_data), post_data))
+
+                '''
+                    post data format:
+                    {
+                        "player": "xxx",    # player openid
+                        "index": 9999999,
+                        "range_min": 1,
+                        "range_max": 10,
+                        "sort_type": "exp"  # support sort type : "exp", "success"
+                    }
+
+                '''
+                post_data_json = json.loads(post_data)
+
+                if post_data_json.has_key('player'):
+                    player = post_data_json['player']
+
+                if post_data_json.has_key('index'):
+                    index = post_data_json['index']
+
+                if post_data_json.has_key('range_min'):
+                    range_min = post_data_json['range_min']
+
+                if post_data_json.has_key('range_max'):
+                    range_max = post_data_json['range_max']
+
+                if post_data_json.has_key('sort_type'):
+                    sort_type = post_data_json['sort_type']
+
+
+                        
+                self.logger.debug('player:%s, index:%s, range_min:%s, range_max=%s, sort_type:%s .' %(player, index, range_min, range_max, sort_type))   
+                # check the params
+                if player == None:
+                    response['result'] = 'error'
+                    response['message'] = 'params player is None.'
+                    return "%s" %(json.dumps(response))
+
+                if index == None:
+                    response['result'] = 'error'
+                    response['message'] = 'params index error.'
+                    return "%s" %(json.dumps(response))   
+
+                if int(range_min) > int(range_max):
+                    response['result'] = 'error'
+                    response['message'] = 'params error for range_min:%s and range_max:%s.' %(range_min, range_max)
+                    return "%s" %(json.dumps(response))   
+
+
+                post_data_json = {}
+                post_data_json['player'] = player
+                post_data_json['index']  = index
+
+                response['index'] = index
+
+                # get the player info , if not get player info ,just get by index
+                ret,msg,player_info = self.database.db_get_player_by_openid(post_data_json['player'])
+                if ret != 'success':
+                    response['result'] = 'error'
+                    response['message'] = 'get player error:%s.' %(msg)
+                    return "%s" %(json.dumps(response)) 
+
+                if len(player_info) < 1:
+                    response['result'] = 'error'
+                    response['message'] = 'there is no player for id:%s.' %(post_data_json['player'])
+                    return "%s" %(json.dumps(response)) 
+
+                self.logger.debug('Get player info: %s.' %(json.dumps(player_info)))
+
+
+                # get the first 3
+                ret,msg,firsts_player_info = self.database.db_get_ranklist_range(index, 0,3, sort_type)
+                if ret != 'success':
+                    response['result'] = 'error'
+                    response['message'] = 'get player error:%s.' %(msg)
+                    return "%s" %(json.dumps(response)) 
+
+                if len(firsts_player_info) < 1:
+                    response['result'] = 'error'
+                    response['message'] = 'there is no index:%s.' %(index)
+                    return "%s" %(json.dumps(response)) 
+
+                self.logger.debug('Get ranklist firsts player info: %s.' %(json.dumps(firsts_player_info)))
+
+
+
+                # get the player ranking
+                ret,msg,player_ranking_info = self.database.db_get_ranking_number(index, player_info[0]['id'], sort_type)
+                if ret != 'success':
+                    response['result'] = 'error'
+                    response['message'] = 'get ranking error:%s.' %(msg)
+                    return "%s" %(json.dumps(response)) 
+                else:
+                    self.logger.debug('Get player ranking info, ret:%s, info: %s.' %(ret, json.dumps(player_ranking_info)))
+
+                ranklist_offset = 0
+                ranklist_number = 11
+
+                if len(player_ranking_info) < 1:
+                    self.logger.debug( 'there is no id:%s in ranklist:%s.' %(player_info[0]['id'], index))
+                else:
+                    self.logger.debug('ranking info: %s.' %(json.dumps(player_ranking_info)))
+                    if player_ranking_info[0]['number'] >= 5:
+                        ranklist_offset = player_ranking_info[0]['number']-5
+
+
+                response['first'] = []
+                member_cnt = 0
+                for firsts_player_info_one in firsts_player_info:
+                    # get player info
+                    ranklist_member_one = {}
+                    
+                    ret,msg,member_info = self.database.db_get_player_by_id(firsts_player_info_one['playerID'])
+                    if ret == 'success' and len(member_info) > 0:
+                        ranklist_member_one['name'] = member_info[0]['name']
+                        ranklist_member_one['head'] = member_info[0]['head']
+                        ranklist_member_one['guild_id'] = member_info[0]['guildID']
+                    else:
+                        ranklist_member_one['name'] = ""
+                        ranklist_member_one['head'] = ""
+                        ranklist_member_one['guild_id'] = 0
+
+                    if member_info[0]['account'] == player:
+                        ranklist_member_one['isplayer'] = 1
+                    else:
+                        ranklist_member_one['isplayer'] = 0
+
+                    member_cnt += 1
+                    ranklist_member_one['ranking'] = member_cnt
+                    ranklist_member_one['count']   = firsts_player_info_one['count']
+                    ranklist_member_one['success']   = firsts_player_info_one['success']
+
+                    # get guild info
+                    if ranklist_member_one['guild_id'] > 0:
+                        ret, msg, member_guild_info = self.database.db_get_guild_by_guildID(ranklist_member_one['guild_id'])
+                        if ret == 'success' and len(member_guild_info) > 0:
+                            ranklist_member_one['guild_name'] = member_guild_info[0]['guild_name']
+                            ranklist_member_one['guild_head'] = member_guild_info[0]['head']
+
+                    else:
+                        ranklist_member_one['guild_name'] = ""
+                        ranklist_member_one['guild_head'] = ""
+
+                    response['first'].append(ranklist_member_one)
+
+                # get the members around the player ,  if the player not active, just get the first members
+                ret,msg,around_player_info = self.database.db_get_ranklist_range(index, ranklist_offset, ranklist_number, sort_type)
+                if ret != 'success':
+                    response['result'] = 'error'
+                    response['message'] = 'get player error:%s.' %(msg)
+                    return "%s" %(json.dumps(response)) 
+
+                if len(around_player_info) < 1:
+                    response['result'] = 'error'
+                    response['message'] = 'there is no index:%s.' %(index)
+                    return "%s" %(json.dumps(response)) 
+
+                self.logger.debug('Get ranklist around players info: %s.' %(json.dumps(around_player_info)))
+                response['ranklist'] = []
+                member_cnt = ranklist_offset
+                for around_player_info_one in around_player_info:
+                    # get player info
+                    ranklist_member_one = {}
+                    ret,msg,member_info = self.database.db_get_player_by_id(around_player_info_one['playerID'])
+                    if ret == 'success' and len(member_info) > 0:
+                        ranklist_member_one['name'] = member_info[0]['name']
+                        ranklist_member_one['head'] = member_info[0]['head']
+                        ranklist_member_one['guild_id'] = member_info[0]['guildID']
+                    else:
+                        ranklist_member_one['name'] = ""
+                        ranklist_member_one['head'] = ""
+                        ranklist_member_one['guild_id'] = 0
+
+                    if member_info[0]['account'] == player:
+                        ranklist_member_one['isplayer'] = 1
+                    else:
+                        ranklist_member_one['isplayer'] = 0
+
+                    member_cnt += 1
+                    ranklist_member_one['ranking'] = member_cnt
+                    ranklist_member_one['count']   = around_player_info_one['count']
+                    ranklist_member_one['success']   = firsts_player_info_one['success']
+
+                    # get guild info
+                    if ranklist_member_one['guild_id'] > 0:
+                        ret, msg, member_guild_info = self.database.db_get_guild_by_guildID(ranklist_member_one['guild_id'])
+                        if ret == 'success' and len(member_guild_info) > 0:
+                            ranklist_member_one['guild_name'] = member_guild_info[0]['guild_name']
+                            ranklist_member_one['guild_head'] = member_guild_info[0]['head']
+
+                    else:
+                        ranklist_member_one['guild_name'] = ""
+                        ranklist_member_one['guild_head'] = ""
+
+                    response['ranklist'].append(ranklist_member_one)
+
+
+
+
+
+                # get the members user want to search,  if the player not active, just get the first members
+                ranklist_offset = int(range_min)-1
+                ranklist_number = int(range_max)-ranklist_offset
+
+                ret,msg,around_player_info = self.database.db_get_ranklist_range(index, ranklist_offset, ranklist_number, sort_type)
+                if ret != 'success':
+                    response['result'] = 'error'
+                    response['message'] = 'get player error:%s.' %(msg)
+                    return "%s" %(json.dumps(response)) 
+
+                if len(around_player_info) < 1:
+                    response['result'] = 'error'
+                    response['message'] = 'there is no player info in range(%s,%s):%s.' %(range_min,range_max)
+                    return "%s" %(json.dumps(response)) 
+
+                self.logger.debug('Get ranklist firsts player info: %s.' %(json.dumps(around_player_info)))
+                response['search_range'] = []
+                member_cnt = ranklist_offset
+                for around_player_info_one in around_player_info:
+                    # get player info
+                    ranklist_member_one = {}
+                    ret,msg,member_info = self.database.db_get_player_by_id(around_player_info_one['playerID'])
+                    if ret == 'success' and len(member_info) > 0:
+                        ranklist_member_one['name'] = member_info[0]['name']
+                        ranklist_member_one['head'] = member_info[0]['head']
+                        ranklist_member_one['guild_id'] = member_info[0]['guildID']
+
+                        if member_info[0]['account'] == player:
+                            ranklist_member_one['isplayer'] = 1
+                        else:
+                            ranklist_member_one['isplayer'] = 0
+
+                    else:
+                        ranklist_member_one['name'] = ""
+                        ranklist_member_one['head'] = ""
+                        ranklist_member_one['guild_id'] = 0
+
+
+
+                    member_cnt += 1
+                    ranklist_member_one['ranking'] = member_cnt
+                    ranklist_member_one['count']   = around_player_info_one['count']
+                    ranklist_member_one['success']   = firsts_player_info_one['success']
+
+                    # get guild info
+                    if ranklist_member_one['guild_id'] > 0:
+                        ret, msg, member_guild_info = self.database.db_get_guild_by_guildID(ranklist_member_one['guild_id'])
+                        if ret == 'success' and len(member_guild_info) > 0:
+                            ranklist_member_one['guild_name'] = member_guild_info[0]['guild_name']
+                            ranklist_member_one['guild_head'] = member_guild_info[0]['head']
+
+                    else:
+                        ranklist_member_one['guild_name'] = ""
+                        ranklist_member_one['guild_head'] = ""
+
+                    response['search_range'].append(ranklist_member_one)
+
+
+                
+                response['result'] = "success"
+                return "%s" %(json.dumps(response)) 
+
+            except Exception,ex:
+                response = {}
+                response['result'] = 'error'
+                response['message'] = '%s' %(str(ex))
+                return "%s" %(json.dumps(response)) 
+
 
         @bottle.route('/api2/ranklist/numbers/:index')
         def api2_get_ranklist_numbers(index=None):

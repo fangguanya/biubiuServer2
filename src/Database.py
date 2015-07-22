@@ -248,7 +248,7 @@ class Database:
 
             ret,conn = self.__create_connection(db);
 
-            select_string = "id,name,head,level,guild2.limit,guild2.number,createrOpenID,exp"
+            select_string = "id,name,head,level,guild2.limit,guild2.number,createrOpenID,exp,gold"
             if params.has_key('sort_type'):
                 if params['sort_type'] == 'members_exp':
                     select_string = "%s,(select sum(exp) from guildMember2 where guildID=guild2.id and status='active') as members_exp " %(select_string)
@@ -304,6 +304,7 @@ class Database:
                 result_one['people_number'] = row[5]
                 result_one['createrOpenID'] = row[6]
                 result_one['exp'] = row[7]
+                result_one['gold'] = row[8]
 
                 result_one['if_in_guild'] = 0
                 result.append(result_one)
@@ -1306,7 +1307,7 @@ class Database:
             return "error",str(ex),result
 
 
-    def db_get_ranklist_range(self, index, offset, number):
+    def db_get_ranklist_range(self, index, offset, number, sort_type='exp'):
         '''
             get the ranklist.
         '''
@@ -1316,9 +1317,11 @@ class Database:
             ret, db = self.__connect_to_db();
             ret,conn = self.__create_connection(db);
 
-            # insert project
-            sql = "select playerID, playerNamebrand.index, playerNamebrand.count from playerNamebrand where playerNamebrand.index=%s order by playerNamebrand.count desc limit %s,%s;"  %(index,offset,number)
-            #Factory.logger.debug("[sql]%s" %(sql));
+            if sort_type == 'exp':
+                sql = "select playerID, playerNamebrand.index, playerNamebrand.count,success from playerNamebrand where playerNamebrand.index=%s order by playerNamebrand.count desc limit %s,%s;"  %(index,offset,number)
+            else:
+                sql = "select playerID, playerNamebrand.index, playerNamebrand.count,success from playerNamebrand where playerNamebrand.index=%s order by playerNamebrand.success desc limit %s,%s;"  %(index,offset,number)
+
             print "sql: %s." %(sql)
             conn.execute(sql);
 
@@ -1329,7 +1332,7 @@ class Database:
                 result_one['playerID'] = row[0]+self.player_id_offset
                 result_one['index'] = row[1]
                 result_one['count'] = row[2]
-
+                result_one['success'] = row[3]
 
                 #print result_one
                 result.append(result_one)
@@ -1346,7 +1349,7 @@ class Database:
             return "error",str(ex),result
 
 
-    def db_get_ranking_number(self, index, playerID):
+    def db_get_ranking_number(self, index, playerID, sort_type='exp'):
         '''
             get the ranklist.
         '''
@@ -1356,9 +1359,10 @@ class Database:
             ret, db = self.__connect_to_db();
             ret,conn = self.__create_connection(db);
 
-            # insert project
-            sql = "select id,playerID,number from (select id, playerID, playerNamebrand.index, count, (@number:=@number+1) as number from playerNamebrand,(select (@number:=0)) b where playerNamebrand.index=%s order by count desc) c where playerID=%s;"  %(index,playerID-self.player_id_offset)
-            #Factory.logger.debug("[sql]%s" %(sql));
+            if sort_type == 'exp':
+                sql = "select id,playerID,number from (select id, playerID, playerNamebrand.index, count, (@number:=@number+1) as number from playerNamebrand,(select (@number:=0)) b where playerNamebrand.index=%s order by count desc) c where playerID=%s;"  %(index,playerID-self.player_id_offset)
+            else:
+                sql = "select id,playerID,number from (select id, playerID, playerNamebrand.index, count, (@number:=@number+1) as number from playerNamebrand,(select (@number:=0)) b where playerNamebrand.index=%s order by success desc) c where playerID=%s;"  %(index,playerID-self.player_id_offset)
             print "sql: %s." %(sql)
             conn.execute(sql);
 
