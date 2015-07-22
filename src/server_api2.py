@@ -2751,7 +2751,7 @@ class Server:
                     member_cnt += 1
                     ranklist_member_one['ranking'] = member_cnt
                     ranklist_member_one['count']   = around_player_info_one['count']
-                    ranklist_member_one['success']   = firsts_player_info_one['success']
+                    ranklist_member_one['success']   = around_player_info_one['success']
 
                     # get guild info
                     if ranklist_member_one['guild_id'] > 0:
@@ -2812,7 +2812,7 @@ class Server:
                     member_cnt += 1
                     ranklist_member_one['ranking'] = member_cnt
                     ranklist_member_one['count']   = around_player_info_one['count']
-                    ranklist_member_one['success']   = firsts_player_info_one['success']
+                    ranklist_member_one['success']   = around_player_info_one['success']
 
                     # get guild info
                     if ranklist_member_one['guild_id'] > 0:
