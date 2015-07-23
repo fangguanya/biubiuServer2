@@ -107,7 +107,7 @@ class Cplayer:
                 self.database.db_do_insert_commond('player2',player_params_list)
                 
                 #break;
-                time.sleep(0.5)
+                time.sleep(0.1)
         except Exception,ex:
             print "ERROR:%s" %(ex)
 
