@@ -196,6 +196,13 @@ class Server:
             root_path = "%s/../images/guild" %(self.dir_path)
             return bottle.static_file(filename, root=root_path)
             
+        @bottle.route('/images/player/head/:filename')
+        def send_image_player_head(filename=None):
+            # FIXME: the param 'root' should be define in other place, now just for test.
+            root_path = "%s/../images/player/head" %(self.dir_path)
+            return bottle.static_file(filename, root=root_path)
+
+
 
         @bottle.route('/configs/:filename')
         def send_configs(filename=None):

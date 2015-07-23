@@ -129,8 +129,71 @@ class Database:
 
             return "error","not do",None
 
+    def __string_value_list(self,value_list):
+
+        try:
+            string_name_list = ''
+            string_value_list = ''
+
+            '''
+                value_list format:
+                [{"name":"port", "value":9090},{"name":"server","value":"10.33.0.123"}]
+            '''
+            value_cnt = 0
+            for value_one in value_list:
+
+                if value_cnt == 0:
+                    string_name_list = "{0}".format(value_one['name'])
+                    if isinstance(value_one['value'], basestring):
+                        string_value_list = "'{0}'".format(value_one['value'])
+                    else:
+                        string_value_list = "{0}".format(value_one['value'])
+                    value_cnt += 1
+                else:
+                    string_name_list = "{0},{1}".format(string_name_list, value_one['name'])
+                    if isinstance(value_one['value'], basestring):
+                        string_value_list = "{0},'{1}'".format(string_value_list, value_one['value'])
+                    else:
+                        string_value_list = "{0}, {1}".format(string_value_list, value_one['value'])
+
+            return 'success',string_name_list,string_value_list
+        except Exception,ex:
+            return 'error',str(ex),str(ex)
+
+    def db_do_insert_commond(self, table_name, value_list):
+        result = 'error'
+
+        try:
+
+            result, name_list_string, value_list_string = self.__string_value_list(value_list)
+            if result != 'success':
+                print "db_do_insert_commond, __string_where_list error:%s" %name_list_string
+                return result,name_list_string  
 
 
+            ret, db = self.__connect_to_db();
+
+            ret,conn = self.__create_connection(db);
+            
+            sql = "INSERT INTO {0}({1})  VALUES({2});".format(table_name, name_list_string, value_list_string)
+
+            print "[db_do_insert_commond]%s" %(sql)
+            conn.execute(sql);
+            db.commit()
+
+            if conn is not None:
+                conn.close(); 
+
+            result = 'success'
+            return result,'success'
+        except Exception,ex:
+            if conn is not None:
+                conn.close()
+            db.rollback()
+
+            msg = "error:%s." %(str(ex))
+            print "db_do_insert_commond, %s" %msg
+            return result,msg   
 
     def db_create_guild(self, params):
         '''
