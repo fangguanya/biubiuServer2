@@ -1385,7 +1385,7 @@ class Database:
             else:
                 sql = "select playerID, playerNamebrand.index, playerNamebrand.count,success from playerNamebrand where playerNamebrand.index=%s order by playerNamebrand.success desc limit %s,%s;"  %(index,offset,number)
 
-            sql = "select playerID, playerNamebrand.index, playerNamebrand.count from playerNamebrand where playerNamebrand.index=%s order by playerNamebrand.count desc limit %s,%s;"  %(index,offset,number)
+            
             print "sql: %s." %(sql)
             conn.execute(sql);
 
@@ -1396,7 +1396,7 @@ class Database:
                 result_one['playerID'] = row[0]+self.player_id_offset
                 result_one['index'] = row[1]
                 result_one['count'] = row[2]
-                #result_one['success'] = row[3]
+                result_one['success'] = row[3]
 
 
                 #print result_one
@@ -1429,7 +1429,7 @@ class Database:
             else:
                 sql = "select id,playerID,number from (select id, playerID, playerNamebrand.index, count, (@number:=@number+1) as number from playerNamebrand,(select (@number:=0)) b where playerNamebrand.index=%s order by success desc) c where playerID=%s;"  %(index,playerID-self.player_id_offset)
             
-            sql = "select id,playerID,number from (select id, playerID, playerNamebrand.index, count, (@number:=@number+1) as number from playerNamebrand,(select (@number:=0)) b where playerNamebrand.index=%s order by count desc) c where playerID=%s;"  %(index,playerID-self.player_id_offset)
+            
             print "sql: %s." %(sql)
             conn.execute(sql);
 
