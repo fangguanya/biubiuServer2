@@ -202,12 +202,14 @@
 }
 返回值：
 {
-    "result" : "success", 
-    "logo_url" : "http://xxx.xxx.com/xxx/xx.jpg"
+    "result" : "success",
+    "type" : 1,                                      
+    "logo_url" : "/images/agency/teamnxxt.png"
 }
 说明：
-"result"描述操作结果，"success"表示成功，"error"表示失败。
-"logo_url"表示授权对象的logo路径。
+"result" : 描述操作结果，"success"表示成功，"error"表示失败
+"type" : 表示license的类型： 0:普通学团, 1:机构学团
+"logo_url" : 表示授权对象的logo相对路径
 </code></pre>
 
 
@@ -219,7 +221,8 @@
 {
     "player" : "PLAYER_ID",             #必选，用户openID
     "license": "LICENSE_CODE",          #必选，授权码
-    "name"   : "NAME"                   #必选，学团名称            
+    "name"   : "NAME",                  #必选，学团名称   
+    "logo"   : "/images/agency/teamnxxt.png"            # 可选，学团头像   
 }
 返回值：
 {
@@ -228,6 +231,7 @@
 }
 说明：
 "player"为QQ返回的openID
+"logo"可以设置系统提供给用户的学团头像路径，若license是机构学团的，则忽略"logo"参数。
 </code></pre>
 
 
@@ -333,7 +337,6 @@
         "headID" : 23,                       #学团头像ID
         "level" : 10,                        #学团等级
         "createTime":"xxxx"                  #学团创建时间
-        "createrID":12,                      #学团创建者ID
         "createrOpenID":"xxx",               #学团创建者OpenID
         "limit":100,                         #学团成员限制
         "number":89,                         #学团现有成员

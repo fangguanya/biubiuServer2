@@ -122,6 +122,12 @@ class Server:
             }
         '''
 
+        self.agencys_head_list = []
+        for head_one in self.agencys_json['agencys']:
+            self.agencys_head_list.append(head_one['url'])
+
+        self.logger.debug("agencys_head_list: %s" %(json.dumps(self.agencys_head_list)))
+
         self.normal_guild_heads = [
             {"id":1,  "head":"/images/guild/1.png"},
             {"id":2,  "head":"/images/guild/2.png"},
@@ -136,6 +142,12 @@ class Server:
         ]
 
         self.logger.debug("normal_guild_heads: %s" %(json.dumps(self.normal_guild_heads)))
+
+        self.normal_heads_list = []
+        for head_one in self.normal_guild_heads:
+            self.normal_heads_list.append(head_one['head'])
+
+        self.logger.debug("normal_heads_list: %s" %(json.dumps(self.normal_heads_list)))
 
 
         self.logger.info('init over.')
@@ -504,6 +516,13 @@ class Server:
                     response['message'] = 'there is no license:%s.' %(post_data_json['license'])
                     return "%s" %(json.dumps(response)) 
 
+                response['logo_url'] = license_info[0]['logo'] 
+                response['type'] = 0
+                # check license type
+                if license_info[0]['logo'] in self.agencys_head_list:
+                    response['type'] = 1
+
+
                 # if license has been used, return 'error'
                 if license_info[0]['status'] != Consts.license_active:
                     response['result'] = 'error'
@@ -512,9 +531,9 @@ class Server:
 
 
 
-                # just for test
+                
                 response['result'] = 'success'
-                response['logo_url'] = license_info[0]['logo'] 
+                
 
                 return "%s" %(json.dumps(response))
 
@@ -543,7 +562,7 @@ class Server:
                         "player" : "PLAYER_OPEN_ID",
                         "license": "LICENSE_CODE",
                         "name" : "NAME",
-                        "logo" : "Logo_ID"
+                        "logo" : "logo url"
                     }
                 '''
                 post_data_json = json.loads(post_data)
@@ -574,6 +593,12 @@ class Server:
                     response['message'] = 'The license:%s has been used.' %(post_data_json['license'])
                     return "%s" %(json.dumps(response)) 
 
+                # get license type
+                license_type = 0
+                if license_info[0]['logo'] in self.agencys_head_list:
+                    license_type = 1
+
+
                 # check the params
                 if post_data_json.has_key('player'):
                     # check the player
@@ -596,21 +621,30 @@ class Server:
                         response['result'] = 'error'
                         response['message'] = 'player:%s is in other guild:%s.' %(post_data_json['player'],player_info[0]['guildID'])
                         return "%s" %(json.dumps(response)) 
-
-                    # 3. check the player can or not to create guild.
                     
                 else:
                     response['result'] = 'error'
                     response['message'] = 'need param player.'
                     return "%s" %(json.dumps(response)) 
 
-                guild_id = -1
-                # create the guild
-                if license_info[0]['logo'] != '':
+
+                # check the logo
+                if post_data_json.has_key('logo'):
+                    # check logo is support
+                    if  post_data_json['logo'] not in self.normal_heads_list:
+                        post_data_json['logo'] = '/images/agency/teamnxxt.png'
+
+                else:
+                    post_data_json['logo'] = '/images/agency/teamnxxt.png'
+
+                if license_info[0]['logo'] != '' and license_type == 1:
                     post_data_json['logo'] = license_info[0]['logo']
+
 
                 response['logo_url'] = post_data_json['logo']
 
+                guild_id = -1
+                # create the guild
                 ret, msg, guild_id = self.database.db_create_guild(post_data_json)
                 if  ret != 'success':
                     response['result'] = 'error'
@@ -1261,6 +1295,9 @@ class Server:
                 self.logger.debug('Get guild info: %s.' %(json.dumps(guild_info)))
                 
                 response['guild_info'] = guild_info[0]
+                # the 'createrID' not used, pop it
+                if response['guild_info'].has_key('createrID'):
+                    response['guild_info'].pop('createrID')
 
                 # get the guild members info
                 ret,msg,guild_members = self.database.db_get_guildMembers_by_guildID(guild_id)
