@@ -65,7 +65,7 @@ class Cplayer:
 
             file = open("new_players.txt")
 
-            cnt = 840
+            cnt = 1060
             while 1:
                 name = file.readline()
                 if not name:
@@ -94,19 +94,32 @@ class Cplayer:
 
                 self.add_one_name_and_value(player_params_list, 'headurl', heads[random.randint(0, len(heads)-1)])
 
-                print json.dumps(player_params_list)
+                #print json.dumps(player_params_list)
 
                 # create account
                 account_params_list = []
                 self.add_one_name_and_value(account_params_list, 'id', cnt)
                 self.add_one_name_and_value(account_params_list, 'name', account)
-                self.database.db_do_insert_commond('account',account_params_list)
+                #self.database.db_do_insert_commond('account',account_params_list)
 
                 # create player
-                self.database.db_do_insert_commond('player',player_params_list)
-                self.database.db_do_insert_commond('player2',player_params_list)
+                #self.database.db_do_insert_commond('player',player_params_list)
+                #self.database.db_do_insert_commond('player2',player_params_list)
                 
-                #break;
+                # update logo
+                sql = "select id,headurl from player2 where id=%s;" %(cnt)
+                ret,msg,data = self.database.db_do_select_commond(sql)
+                print data 
+
+                for one in data:
+                    print one[0],one[1]
+                    if isinstance(one[1],basestring):
+                        if "http://" not in one[1] :
+                            sql2 = "update player2 set headurl='http://115.159.31.18%s' where id = %s" %(one[1], one[0])
+                            print sql2
+                            #self.database.db_do_update_commond(sql2)
+
+                break;
                 time.sleep(0.1)
         except Exception,ex:
             print "ERROR:%s" %(ex)
