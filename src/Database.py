@@ -457,6 +457,9 @@ class Database:
             if  params.has_key('head'):
                 update_cmd = "%s head='%s'," %(update_cmd, params['head'])
 
+            if  params.has_key('name'):
+                update_cmd = "%s name='%s'," %(update_cmd, params['name'])
+
             if  params.has_key('headID'):
                 update_cmd = "%s headID=%s," %(update_cmd, params['headID'])
 

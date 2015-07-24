@@ -1834,6 +1834,9 @@ class Server:
                 if  post_data_json.has_key('head'):
                     update_guild_params['head'] = post_data_json['head']
 
+                if  post_data_json.has_key('name'):
+                    update_guild_params['name'] = post_data_json['name']
+
                 if  post_data_json.has_key('headID'):
                     update_guild_params['headID'] = post_data_json['headID']             
 
